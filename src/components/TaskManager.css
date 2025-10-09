@@ -1,0 +1,288 @@
+.task-manager {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+    font-family: system-ui, Arial, sans-serif;
+}
+
+.task-manager h1 {
+    margin: 0 0 12px;
+}
+
+.feedback {
+    background: #eef;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+}
+
+/* Two-column container */
+.columns {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 2fr;
+    align-items: start;
+    margin: 8px;
+}
+
+@media (max-width: 800px) {
+    .columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+.col.left {
+    background: #fafafa;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.left-header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.search-block {
+  display: flex;
+  align-items: center;
+}
+
+.input-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-icon {
+  margin-right: 5px;
+  font-size: 18px;
+  color: #888;
+}
+
+button {
+  padding: 8px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+input[type="text"] {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.left-header input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.left-header button {
+    padding: 8px 12px;
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 40vh;
+    overflow: auto;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.task-item:hover {
+    background: #fff;
+    border-color: #eee;
+}
+
+.task-item.selected {
+    box-shadow: 0 0 0 2px rgba(0, 120, 255, 0.08);
+    border-color: rgba(0, 120, 255, 0.12);
+}
+
+.task-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.task-title {
+    font-weight: 600;
+}
+
+.col.right {
+    background: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    min-height: 200px;
+}
+
+.empty {
+    color: #666;
+    padding: 12px;
+}
+
+.details .detail-row {
+    margin-bottom: 8px;
+}
+
+.details-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.edit-form {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.edit-form input,
+.edit-form textarea {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.completed-block {
+    margin-top: 16px;
+    border-top: 1px dashed #e6e6e6;
+    padding-top: 12px;
+}
+
+.collapse-toggle {
+    background: transparent;
+    border: 0;
+    color: #0078ff;
+    cursor: pointer;
+    padding: 6px 0;
+    font-weight: 600;
+}
+
+.completed-list {
+    margin-top: 8px;
+    max-height: 25vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 6px;
+    padding: 8px;
+    border: 1px solid #f0f0f0;
+}
+
+.completed-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.completed-item {
+    padding: 8px;
+    border-radius: 6px;
+    background: #fafafa;
+    border: 1px solid #f3f3f3;
+    cursor: pointer;
+}
+
+.completed-item:hover {
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.completed-title {
+    font-weight: 600;
+    color: #444;
+}
+
+.completed-desc {
+    color: #666;
+    margin-top: 4px;
+}
+
+.completed-meta {
+    color: #888;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.task-manager.one-column .columns {
+    display: block;
+}
+
+/* One-column container */
+.task-manager.one-column .col {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 0;
+}
+
+.task-manager.one-column .col.right {
+    margin-top: 1rem;
+}
+
+.task-manager.one-column .left-header {
+    display: flex;
+    gap: 0.5rem;
+}
+
+
+
+
+.task-manager.two-column .columns {
+    display: flex;
+    gap: 1rem;
+}
+
+.task-manager.two-column .col.left {
+    width: 40%;
+}
+
+.task-manager.two-column .col.right {
+    width: 60%;
+}
+
+@media (max-width: 800px) {
+    .task-manager.two-column .columns {
+        display: block;
+    }
+
+    .task-manager.two-column .col {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+}
