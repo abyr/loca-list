@@ -1,176 +1,155 @@
 import React, { useEffect, useState } from 'react';
-import { TaskDB } from '../db/TaskDB';
 import { Task } from '../models/Task';
+import { useTaskDB } from '../hooks/useTaskDB';
+import { useTaskForm } from '../hooks/useTaskForm';
+import { useTaskFilter } from '../hooks/useTaskFilter';
+import { useScreenWidth } from '../hooks/useScreenWidth';
 import './TaskManager.css';
 
-const taskDB = new TaskDB();
-
 const TaskManager: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');  // Step 1: Add search term state
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
+
+  const {
+    tasks,
+    feedback,
+    loadTasks,
+    addTask,
+    updateTask,
+  } = useTaskDB();
+
+  const { isMobile } = useScreenWidth();
+  const isMobileLayout = isMobile;
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [completedCollapsed, setCompletedCollapsed] = useState(true);
+  const [showDetailsOnly, setShowDetailsOnly] = useState(false);
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [loadTasks]);
 
-  const loadTasks = async () => {
-    try {
-      const loadedTasks = await taskDB.getAllTasks();
-      setTasks(loadedTasks);
-    } catch (error) {
-      console.error('Error loading tasks:', error);
-      setFeedback('Failed to load tasks. Please try again.');
-    }
-  };
-
-  const filteredTasks = tasks.filter(task => {
-    if (searchTerm.trim() === '') {
-      return true;
-    }
-
-    return task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
-  });
-
-  const resetForm = () => {
-    setTitle('');
-    setDescription('');
-    setEditingTaskId(null);
-    setFeedback(null);
-  };
-
-  const handleAddTask = async () => {
-    if (!title.trim()) return;
-    const newTask: Task = {
-      title: title.trim(),
-      description: description.trim(),
+  const {
+    title: addTitle,
+    setTitle: setAddTitle,
+    reset: resetAddForm,
+    handleSubmit: submitAdd,
+  } = useTaskForm(null, async ({ title, description }) => {
+    await addTask({
+      title,
+      description,
       createdDate: Date.now(),
       updatedDate: Date.now(),
       completed: false,
       deleted: false,
-    };
-    try {
-      await taskDB.addTask(newTask);
-      resetForm();
-      await loadTasks();
-      setFeedback('Task added successfully!');
-    } catch (error) {
-      console.error('Error adding task:', error);
-      setFeedback('Failed to add task. Please try again.');
-    }
-  };
+    });
+    resetAddForm();
+  });
 
-  const startEditing = (task: Task) => {
-    setTitle(task.title);
-    setDescription(task.description ?? '');
-    setEditingTaskId(task.id ?? null);
-    setSelectedTask(task);
-  };
-
-  const handleEditTask = async () => {
-    if (editingTaskId === null || !title.trim()) return;
+  const {
+    title: editTitle,
+    setTitle: setEditTitle,
+    description: editDesc,
+    setDescription: setEditDesc,
+    reset: resetEditForm,
+    handleSubmit: submitEdit,
+  } = useTaskForm(selectedTask, async ({ title, description }) => {
+    if (editingTaskId === null) return;
     const original = selectedTask ?? tasks.find(t => t.id === editingTaskId);
-    const updatedTask: Task = {
+    await updateTask({
       id: editingTaskId,
-      title: title.trim(),
-      description: description.trim(),
+      title,
+      description,
       createdDate: original?.createdDate ?? Date.now(),
       updatedDate: Date.now(),
       completed: original?.completed ?? false,
       deleted: original?.deleted ?? false,
-    };
-    try {
-      await taskDB.updateTask(updatedTask);
-      resetForm();
-      await loadTasks();
-      setFeedback('Task updated successfully!');
-    } catch (error) {
-      console.error('Error editing task:', error);
-      setFeedback('Failed to update task. Please try again.');
-    }
-  };
+    });
+    setEditingTaskId(null);
+    setSelectedTask(null);
+    resetEditForm();
+  });
 
   const toggleCompleted = async (task: Task) => {
-    const updated = { ...task, completed: !task.completed, updatedDate: Date.now() };
-    try {
-      await taskDB.updateTask(updated);
-      await loadTasks();
-      if (selectedTask && selectedTask.id === updated.id) setSelectedTask(updated);
-    } catch (error) {
-      console.error('Error toggling task:', error);
-      setFeedback('Failed to update task. Please try again.');
+    await updateTask({ ...task, completed: !task.completed, updatedDate: Date.now() });
+    if (selectedTask?.id === task.id) {
+      setSelectedTask({ ...task, completed: !task.completed });
     }
-  };
-
-  const selectTask = (task: Task) => {
-    setSelectedTask(task);
-    resetForm();
   };
 
   const startEditFromDetails = () => {
     if (!selectedTask) return;
-    startEditing(selectedTask);
+    setEditingTaskId(selectedTask.id ?? null);
   };
 
-  const handleCloseDetails = () => {
-    setSelectedTask(null);
-    resetForm();
+  const handleClickTask = (task: Task) => {
+    if (editingTaskId !== null) return;
+    if (selectedTask?.id === task.id) {
+      setSelectedTask(null);
+    } else {
+      setSelectedTask(task);
+    }
   }
 
-  const activeTasks = filteredTasks.filter(t => !t.completed);
-  const completedTasks = filteredTasks.filter(t => t.completed).sort((a,b)=> (b.updatedDate||0) - (a.updatedDate||0));
+  const handleCloseDetails = () => {
+    resetEditForm();
+    setEditingTaskId(null);
+    setSelectedTask(null);
+  }
+
+  const {
+    active: activeTasks,
+    completed: completedTasks
+  } = useTaskFilter(tasks, searchTerm);
 
   return (
-    <div className={`task-manager ${selectedTask ? 'two-column' : 'one-column'}`}>
+    <div
+      className={`task-manager ${
+        !isMobileLayout ? 'two-column' : 'one-column'
+      }`}>
       <h1>Loca List</h1>
       {feedback && <div className="feedback">{feedback}</div>}
 
       <div className="columns">
+
+        {!(selectedTask && isMobileLayout) && (
         <aside className="col left">
           <div className="left-header">
+
             <div className="search-block">
-              <span className="search-icon">🔍</span> {/* Unicode character for magnifying glass */}
+              <span className="search-icon">🔍</span>
               <input
                 type="text"
                 placeholder="Search tasks..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={e => setSearchTerm(e.target.value)}
               />
             </div>
+
             <div className="input-block">
               <input
                 type="text"
                 placeholder="New task title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                value={addTitle}
+                onChange={e => setAddTitle(e.target.value)}
               />
-              <button onClick={handleAddTask}>Add</button>
+              <button onClick={submitAdd}>Add</button>
             </div>
           </div>
 
           <h2>Active Tasks</h2>
           <ul className="task-list">
             {activeTasks.length === 0 && <li className="empty">No active tasks</li>}
-            {activeTasks.map((task) => (
+            {activeTasks.map(task => (
               <li
                 key={task.id}
                 className={`task-item ${selectedTask?.id === task.id ? 'selected' : ''}`}
-                onClick={(e) => {
-                      e.stopPropagation();
-                      selectTask(task);
-                    }}
+                onClick={() => handleClickTask(task)}
               >
                 <div className="task-main">
                   <input
                     type="checkbox"
                     checked={task.completed}
-                    onChange={(e) => {
+                    onChange={e => {
                       e.stopPropagation();
                       toggleCompleted(task);
                     }}
@@ -188,7 +167,9 @@ const TaskManager: React.FC = () => {
               onClick={() => setCompletedCollapsed(c => !c)}
               aria-expanded={!completedCollapsed}
             >
-              {completedCollapsed ? `Show completed (${completedTasks.length})` : `Hide completed (${completedTasks.length})`}
+              {completedCollapsed
+                ? `Show completed (${completedTasks.length})`
+                : `Hide completed (${completedTasks.length})`}
             </button>
 
             {!completedCollapsed && (
@@ -197,18 +178,24 @@ const TaskManager: React.FC = () => {
                   <div className="empty">No completed tasks</div>
                 ) : (
                   <ul>
-                    {completedTasks.map(ct => (
+                    {completedTasks.map(task => (
                       <li
-                        key={ct.id}
+                        key={task.id}
                         className="completed-item"
-                        onClick={() => toggleCompleted(ct)}
+                        onClick={() => toggleCompleted(task)}
                         role="button"
                         tabIndex={0}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCompleted(ct); }}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') toggleCompleted(task);
+                        }}
                       >
-                        <div className="completed-title">{ct.title}</div>
-                        {ct.description && <div className="completed-desc">{ct.description}</div>}
-                                                <div className="completed-meta">Completed: {new Date(ct.updatedDate).toLocaleString()}</div>
+                        <div className="completed-title">{task.title}</div>
+                        {task.description && (
+                          <div className="completed-desc">{task.description}</div>
+                        )}
+                        <div className="completed-meta">
+                          Completed: {new Date(task.updatedDate).toLocaleString()}
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -217,18 +204,33 @@ const TaskManager: React.FC = () => {
             )}
           </div>
         </aside>
+        )}
 
-        {selectedTask ? (
+        {selectedTask && (
           <section className="col right">
             <div className="details">
-              <div className="detail-row"><strong>Title:</strong> {selectedTask.title}</div>
-              <div className="detail-row"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
-              <div className="detail-row"><strong>Completed:</strong> {selectedTask.completed ? 'Yes' : 'No'}</div>
-              <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
-              <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
+              <div className="detail-row">
+                <strong>Title:</strong> {selectedTask.title}
+              </div>
+              <div className="detail-row">
+                <strong>Description:</strong>{' '}
+                {selectedTask.description || <em>No description</em>}
+              </div>
+              <div className="detail-row">
+                <strong>Completed:</strong>{' '}
+                {selectedTask.completed ? 'Yes' : 'No'}
+              </div>
+              <div className="detail-row">
+                <strong>Created:</strong>{' '}
+                {new Date(selectedTask.createdDate).toLocaleString()}
+              </div>
+              <div className="detail-row">
+                <strong>Updated:</strong>{' '}
+                {new Date(selectedTask.updatedDate).toLocaleString()}
+              </div>
 
               <div className="details-actions">
-                <button onClick={handleCloseDetails}>Close</button>
+                <button onClick={() => handleCloseDetails()}>Close</button>
                 <button onClick={startEditFromDetails}>Edit</button>
               </div>
 
@@ -238,23 +240,29 @@ const TaskManager: React.FC = () => {
                   <input
                     type="text"
                     placeholder="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={editTitle}
+                    onChange={e => setEditTitle(e.target.value)}
                   />
                   <textarea
                     placeholder="Description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={editDesc}
+                    onChange={e => setEditDesc(e.target.value)}
                   />
                   <div className="edit-buttons">
-                    <button onClick={handleEditTask}>Save</button>
-                    <button onClick={resetForm}>Cancel</button>
+                    <button onClick={submitEdit}>Save</button>
+                    <button
+                      onClick={() => {
+                        handleCloseDetails()
+                      }}
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
               )}
             </div>
           </section>
-        ) : ''}
+        )}
       </div>
     </div>
   );
