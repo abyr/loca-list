@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { TaskDB } from '../db/TaskDB';
 import { Task } from '../models/Task';
+import { useTaskDB } from '../hooks/useTaskDB';
+import { useTaskForm } from '../hooks/useTaskForm';
+import { useTaskFilter } from '../hooks/useTaskFilter';
+import { useScreenWidth } from '../hooks/useScreenWidth';
 import './TaskManager.css';
-
-const taskDB = new TaskDB();
 
 const TaskManager: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -11,8 +12,6 @@ const TaskManager: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<string | null>(null);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [completedCollapsed, setCompletedCollapsed] = useState(true);
 
   // Add near top with other useState
@@ -34,114 +33,80 @@ const TaskManager: React.FC = () => {
 
   useEffect(() => {
     loadTasks();
-  }, []);
+  }, [loadTasks]);
 
-  const loadTasks = async () => {
-    try {
-      const loadedTasks = await taskDB.getAllTasks();
-      setTasks(loadedTasks);
-    } catch (error) {
-      console.error('Error loading tasks:', error);
-      setFeedback('Failed to load tasks. Please try again.');
-    }
-  };
-
-  const filteredTasks = tasks.filter(task => {
-    if (searchTerm.trim() === '') {
-      return true;
-    }
-
-    return task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
-  });
-
-  const resetForm = () => {
-    setTitle('');
-    setDescription('');
-    setEditingTaskId(null);
-    setFeedback(null);
-  };
-
-  const handleAddTask = async () => {
-    if (!title.trim()) return;
-    const newTask: Task = {
-      title: title.trim(),
-      description: description.trim(),
+  const {
+    title: addTitle,
+    setTitle: setAddTitle,
+    reset: resetAddForm,
+    handleSubmit: submitAdd,
+  } = useTaskForm(null, async ({ title, description }) => {
+    await addTask({
+      title,
+      description,
       createdDate: Date.now(),
       updatedDate: Date.now(),
       completed: false,
       deleted: false,
-    };
-    try {
-      await taskDB.addTask(newTask);
-      resetForm();
-      await loadTasks();
-      setFeedback('Task added successfully!');
-    } catch (error) {
-      console.error('Error adding task:', error);
-      setFeedback('Failed to add task. Please try again.');
-    }
-  };
+    });
+    resetAddForm();
+  });
 
-  const startEditing = (task: Task) => {
-    setTitle(task.title);
-    setDescription(task.description ?? '');
-    setEditingTaskId(task.id ?? null);
-    setSelectedTask(task);
-  };
-
-  const handleEditTask = async () => {
-    if (editingTaskId === null || !title.trim()) return;
+  const {
+    title: editTitle,
+    setTitle: setEditTitle,
+    description: editDesc,
+    setDescription: setEditDesc,
+    reset: resetEditForm,
+    handleSubmit: submitEdit,
+  } = useTaskForm(selectedTask, async ({ title, description }) => {
+    if (editingTaskId === null) return;
     const original = selectedTask ?? tasks.find(t => t.id === editingTaskId);
-    const updatedTask: Task = {
+    await updateTask({
       id: editingTaskId,
-      title: title.trim(),
-      description: description.trim(),
+      title,
+      description,
       createdDate: original?.createdDate ?? Date.now(),
       updatedDate: Date.now(),
       completed: original?.completed ?? false,
       deleted: original?.deleted ?? false,
-    };
-    try {
-      await taskDB.updateTask(updatedTask);
-      resetForm();
-      await loadTasks();
-      setFeedback('Task updated successfully!');
-    } catch (error) {
-      console.error('Error editing task:', error);
-      setFeedback('Failed to update task. Please try again.');
-    }
-  };
+    });
+    setEditingTaskId(null);
+    setSelectedTask(null);
+    resetEditForm();
+  });
 
   const toggleCompleted = async (task: Task) => {
-    const updated = { ...task, completed: !task.completed, updatedDate: Date.now() };
-    try {
-      await taskDB.updateTask(updated);
-      await loadTasks();
-      if (selectedTask && selectedTask.id === updated.id) setSelectedTask(updated);
-    } catch (error) {
-      console.error('Error toggling task:', error);
-      setFeedback('Failed to update task. Please try again.');
+    await updateTask({ ...task, completed: !task.completed, updatedDate: Date.now() });
+    if (selectedTask?.id === task.id) {
+      setSelectedTask({ ...task, completed: !task.completed });
     }
-  };
-
-  const selectTask = (task: Task) => {
-    setSelectedTask(task);
-    resetForm();
   };
 
   const startEditFromDetails = () => {
     if (!selectedTask) return;
-    startEditing(selectedTask);
+    setEditingTaskId(selectedTask.id ?? null);
   };
 
-  const handleCloseDetails = () => {
-    setSelectedTask(null);
-    resetForm();
+  const handleClickTask = (task: Task) => {
+    if (editingTaskId !== null) return;
+    if (selectedTask?.id === task.id) {
+      setSelectedTask(null);
+    } else {
+      setSelectedTask(task);
+    }
   }
 
-  const activeTasks = filteredTasks.filter(t => !t.completed);
-  const completedTasks = filteredTasks.filter(t => t.completed).sort((a,b)=> (b.updatedDate||0) - (a.updatedDate||0));
+  const handleCloseDetails = () => {
+    resetEditForm();
+    setEditingTaskId(null);
+    setSelectedTask(null);
+  }
+
+  const {
+    active: activeTasks,
+    completed: completedTasks
+  } = useTaskFilter(tasks, searchTerm);
 
   return (
     <div className={`wrapper ${sidebarOpen ? 'sidebar-open' : ''}`} onClick={() => setSidebarOpen(false)}>
