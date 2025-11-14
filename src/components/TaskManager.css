@@ -305,14 +305,6 @@ button {
   gap: 8px;
   margin-top: 8px;
 }
-.details-actions button {
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #e6eef6;
-  background: #fff;
-  cursor: pointer;
-  font-weight: 600;
-}
 
 .edit-form {
   margin-top: 12px;
@@ -333,26 +325,10 @@ button {
   display: flex;
   gap: 8px;
 }
-.edit-buttons button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-}
-.edit-buttons button:first-child {
-  background: linear-gradient(180deg,#06b6d4,#0891b2);
-  color: #fff;
-}
-.edit-buttons button:last-child {
-  background: transparent;
-  border: 1px solid #e6eef6;
-}
 
 /* Responsiveness */
 @media (max-width: 980px) {
   .sidebar { display: none; }
-  /* .col.right { display: none; } */
   .task-manager.one-column .columns { flex-direction: column; }
 }
 @media (max-width: 640px) {
@@ -362,7 +338,6 @@ button {
 }
 
 
-/* Add transition and default transform/opacity */
 .sidebar {
   width: 200px;
   background: #ffffff;
@@ -378,13 +353,11 @@ button {
   opacity: 1;
 }
 
-/* Show when wrapper has sidebar-open (keeps current behavior for wide screens) */
 .wrapper.sidebar-open .sidebar {
   transform: translateX(0);
   opacity: 1;
 }
 
-/* Responsive behaviour: hide sidebar by default under 980px and slide it in when .sidebar-open is set */
 @media (max-width: 980px) {
   .sidebar {
     position: fixed;
@@ -397,21 +370,16 @@ button {
     box-shadow: 0 20px 40px rgba(2,6,23,0.12);
   }
 
-  /* show when wrapper has sidebar-open */
   .wrapper.sidebar-open .sidebar {
     transform: translateX(0);
     opacity: 1;
   }
 
-  /* hide right details and force single column */
-  /* .col.right { display: none; } */
   .task-manager.one-column .columns { flex-direction: column; }
 
-  /* adjust wrapper padding for small screens */
   .wrapper { padding: 12px; }
 }
 
-/* Hide .nav-sidebar on screens wider than 980px */
 @media (min-width: 981px) {
   .nav-sidebar {
     display: none !important;

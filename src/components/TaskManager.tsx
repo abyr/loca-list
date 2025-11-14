@@ -3,33 +3,23 @@ import { Task } from '../models/Task';
 import { useTaskDB } from '../hooks/useTaskDB';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { useTaskFilter } from '../hooks/useTaskFilter';
-import { useScreenWidth } from '../hooks/useScreenWidth';
 import './TaskManager.css';
 
+
 const TaskManager: React.FC = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+
+  const {
+    tasks,
+    feedback,
+    loadTasks,
+    addTask,
+    updateTask,
+  } = useTaskDB();
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [completedCollapsed, setCompletedCollapsed] = useState(true);
-
-  // Add near top with other useState
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  // Add handler (can be inline onClick too)
-  const toggleSidebar = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setSidebarOpen(s => !s);
-  };
-
-  const handleToggleKeyDown = (e: React.KeyboardEvent, fn: (e?: React.MouseEvent) => void) => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    e.preventDefault();
-    // cast to MouseEvent type expected by toggleSidebar
-    fn((e as unknown) as React.MouseEvent);
-  }
-};
 
   useEffect(() => {
     loadTasks();
@@ -108,6 +98,20 @@ const TaskManager: React.FC = () => {
     completed: completedTasks
   } = useTaskFilter(tasks, searchTerm);
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setSidebarOpen(s => !s);
+  };
+
+  const handleToggleKeyDown = (e: React.KeyboardEvent, fn: (e?: React.MouseEvent) => void) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    fn((e as unknown) as React.MouseEvent);
+  }
+};
+
   return (
     <div className={`wrapper ${sidebarOpen ? 'sidebar-open' : ''}`} onClick={() => setSidebarOpen(false)}>
       <div className={`sidebar`} onClick={(e) => e.stopPropagation()}>
@@ -126,6 +130,7 @@ const TaskManager: React.FC = () => {
           <li>Done</li>
         </ul>
       </div>
+
       <div className={`task-manager ${selectedTask ? 'two-column' : 'one-column'}`}>
 
         <div className="columns">
@@ -153,10 +158,10 @@ const TaskManager: React.FC = () => {
                 <input
                   type="text"
                   placeholder="New task title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={addTitle}
+                  onChange={e => setAddTitle(e.target.value)}
                 />
-                <button onClick={handleAddTask}>Add</button>
+                <button onClick={submitAdd}>Add</button>
               </div>
 
             </div>
@@ -168,10 +173,8 @@ const TaskManager: React.FC = () => {
                 <li
                   key={task.id}
                   className={`task-item ${selectedTask?.id === task.id ? 'selected' : ''}`}
-                  onClick={(e) => {
-                        e.stopPropagation();
-                        selectTask(task);
-                      }}
+                  onClick={() => handleClickTask(task)}
+
                 >
                   <div className="task-main">
                     <input
@@ -215,7 +218,7 @@ const TaskManager: React.FC = () => {
                         >
                           <div className="completed-title">{ct.title}</div>
                           {ct.description && <div className="completed-desc">{ct.description}</div>}
-                                                  <div className="completed-meta">Completed: {new Date(ct.updatedDate).toLocaleString()}</div>
+                          <div className="completed-meta">Completed: {new Date(ct.updatedDate).toLocaleString()}</div>
                         </li>
                       ))}
                     </ul>
@@ -235,7 +238,7 @@ const TaskManager: React.FC = () => {
                 <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
 
                 <div className="details-actions">
-                  <button onClick={handleCloseDetails}>Close</button>
+                  <button onClick={() => handleCloseDetails()}>Close</button>
                   <button onClick={startEditFromDetails}>Edit</button>
                 </div>
 
@@ -245,17 +248,23 @@ const TaskManager: React.FC = () => {
                     <input
                       type="text"
                       placeholder="Title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
                     />
                     <textarea
                       placeholder="Description"
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      value={editDesc}
+                      onChange={(e) => setEditDesc(e.target.value)}
                     />
                     <div className="edit-buttons">
-                      <button onClick={handleEditTask}>Save</button>
-                      <button onClick={resetForm}>Cancel</button>
+                      <button onClick={submitEdit}>Save</button>
+                      <button
+                        onClick={() => {
+                          handleCloseDetails()
+                        }}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 )}
