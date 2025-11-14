@@ -4,6 +4,12 @@ import App from './App';
 
 test('renders loca list title', () => {
   render(<App />);
-  const linkElement = screen.getByText(/Loca List/i);
-  expect(linkElement).toBeInTheDocument();
+
+  const inboxElement = screen.getByText(/Inbox/i);
+  const starredElement = screen.getByText(/Starred/i);
+  const doneElement = screen.getByText(/Done/i);
+
+  expect(inboxElement).toBeInTheDocument();
+  expect(starredElement).toBeInTheDocument();
+  expect(doneElement).toBeInTheDocument();
 });
