@@ -154,7 +154,7 @@ const TaskManager: React.FC = () => {
             </div>
             <div className="left-header">
 
-              <div className="input-block">
+              <div className="add-task-block">
                 <input
                   type="text"
                   placeholder="New task title"
