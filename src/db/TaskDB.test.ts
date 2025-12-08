@@ -9,6 +9,7 @@ const expectedKeys = [
       'updatedDate',
       'completed',
       'deleted',
+      'starred',
     ];
 
 describe('TaskDB (with full Task model)', () => {
@@ -20,6 +21,7 @@ describe('TaskDB (with full Task model)', () => {
     createdDate: 0,
     updatedDate: 0,
     completed: false,
+    starred: false,
     deleted: false,
   });
 
@@ -102,6 +104,7 @@ describe('TaskDB (with full Task model)', () => {
     expect(typeof stored!.updatedDate).toBe('number');
     expect(typeof stored!.completed).toBe('boolean');
     expect(typeof stored!.deleted).toBe('boolean');
+    expect(typeof stored!.starred).toBe('boolean');
   });
 
 });

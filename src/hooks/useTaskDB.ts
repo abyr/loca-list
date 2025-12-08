@@ -46,5 +46,19 @@ export const useTaskDB = () => {
     [loadTasks]
   );
 
-  return { tasks, feedback, loadTasks, addTask, updateTask, setFeedback };
+  const deleteTask = useCallback(
+    async (taskId: number) => {
+      try {
+        await taskDB.deleteTask(taskId);
+        setFeedback('Task deleted successfully!');
+        await loadTasks();
+      } catch (e) {
+        console.error(e);
+        setFeedback('Failed to delete task.');
+      }
+    },
+    [loadTasks]
+  );
+
+  return { tasks, feedback, loadTasks, addTask, updateTask, deleteTask, setFeedback };
 };

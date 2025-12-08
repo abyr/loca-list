@@ -14,6 +14,7 @@ const TaskManager: React.FC = () => {
     loadTasks,
     addTask,
     updateTask,
+    deleteTask,
   } = useTaskDB();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,6 +22,7 @@ const TaskManager: React.FC = () => {
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [completedCollapsed, setCompletedCollapsed] = useState(true);
   const [visibleFeedback, setVisibleFeedback] = useState<string | null>(null);
+  const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | null>('inbox');
 
   useEffect(() => {
     loadTasks();
@@ -49,6 +51,7 @@ const TaskManager: React.FC = () => {
       updatedDate: Date.now(),
       completed: false,
       deleted: false,
+      starred: false, // Ensure starred is set to false when adding a new task
     });
     resetAddForm();
   });
@@ -71,6 +74,7 @@ const TaskManager: React.FC = () => {
       updatedDate: Date.now(),
       completed: original?.completed ?? false,
       deleted: original?.deleted ?? false,
+      starred: original?.starred ?? false, // Preserve starred status
     });
     setEditingTaskId(null);
     setSelectedTask(null);
@@ -81,6 +85,13 @@ const TaskManager: React.FC = () => {
     await updateTask({ ...task, completed: !task.completed, updatedDate: Date.now() });
     if (selectedTask?.id === task.id) {
       setSelectedTask({ ...task, completed: !task.completed });
+    }
+  };
+
+  const toggleStarred = async (task: Task) => {
+    await updateTask({ ...task, starred: !task.starred, updatedDate: Date.now() });
+    if (selectedTask?.id === task.id) {
+      setSelectedTask({ ...task, starred: !task.starred });
     }
   };
 
@@ -104,10 +115,33 @@ const TaskManager: React.FC = () => {
     setSelectedTask(null);
   }
 
+  const deleteAllCompleted = async () => {
+    const confirmed = window.confirm('Are you sure you want to delete all completed tasks? This action cannot be undone.');
+    if (!confirmed) return;
+
+    for (const task of completedTasks) {
+      if (task.id) {
+        await deleteTask(task.id);
+      }
+    }
+    if (selectedTask?.completed) {
+      setSelectedTask(null);
+    }
+    setCompletedCollapsed(true);
+  };
+
   const {
     active: activeTasks,
     completed: completedTasks
   } = useTaskFilter(tasks, searchTerm);
+
+  // Determine which tasks to display based on selected box
+  const starredTasks = tasks.filter(t => t.starred && !t.deleted);
+  const displayedActiveTasks = selectedBox === 'done' ? [] : selectedBox === 'starred' ? starredTasks : activeTasks.sort((a, b) => {
+    if (a.starred === b.starred) return 0;
+    return a.starred ? -1 : 1;
+  });
+  const displayedCompletedTasks = selectedBox === 'done' ? completedTasks : [];
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -135,10 +169,10 @@ const TaskManager: React.FC = () => {
           />
           <span className="search-icon">🔍</span> {/* Unicode character for magnifying glass */}
         </div>
-        <ul>
-          <li>Inbox <span className="badge">8</span></li>
-          <li>Starred</li>
-          <li>Done</li>
+        <ul className="box-list">
+          <li className={`box-item ${selectedBox === 'inbox' ? 'active' : ''}`} onClick={() => setSelectedBox('inbox')}>Inbox {activeTasks.length > 0 && <span className="badge">{activeTasks.length}</span>}</li>
+          <li className={`box-item ${selectedBox === 'starred' ? 'active' : ''}`} onClick={() => setSelectedBox('starred')}>Starred {starredTasks.length > 0 && <span className="badge">{starredTasks.length}</span>}</li>
+          <li className={`box-item ${selectedBox === 'done' ? 'active' : ''}`} onClick={() => setSelectedBox('done')}>Done {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}</li>
         </ul>
       </div>
 
@@ -177,31 +211,93 @@ const TaskManager: React.FC = () => {
 
             </div>
 
-            <h2>Active Tasks</h2>
-            <ul className="task-list">
-              {activeTasks.length === 0 && <li className="empty">No active tasks</li>}
-              {activeTasks.map((task) => (
-                <li
-                  key={task.id}
-                  className={`task-item ${selectedTask?.id === task.id ? 'selected' : ''}`}
-                  onClick={() => handleClickTask(task)}
-
+            {selectedBox === 'done' && (
+              <div className="done-block">
+                <h2 className="box-title">Done</h2>
+                <button
+                  className="delete-all-btn"
+                  onClick={deleteAllCompleted}
+                  disabled={completedTasks.length === 0}
                 >
-                  <div className="task-main">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        toggleCompleted(task);
-                      }}
-                    />
-                    <span className="task-title">{task.title}</span>
-                    {task.description && <span className="task-desc">...</span>}
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  Delete all completed tasks
+                </button>
+                <div className="completed-list">
+                  {completedTasks.length === 0 ? (
+                    <div className="empty">No completed tasks</div>
+                  ) : (
+                    <ul>
+                      {completedTasks.map(ct => (
+                        <li
+                          key={ct.id}
+                          className="completed-item"
+                          onClick={() => {
+                            setSelectedTask(ct);
+                            setEditingTaskId(null);
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedTask(ct);
+                              setEditingTaskId(null);
+                            }
+                          }}
+                        >
+                          <div className="completed-title">{ct.title}</div>
+                          {ct.description && <div className="completed-desc">{ct.description}</div>}
+                          <div className="completed-meta">Completed: {new Date(ct.updatedDate).toLocaleString()}</div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {selectedBox !== 'done' && (
+              <>
+                <h2 className="box-title">
+                  {selectedBox === 'inbox' ? 'Inbox' : selectedBox === 'starred' ? 'Starred' : 'Active Tasks'}
+                </h2>
+                <ul className="task-list">
+                  {displayedActiveTasks.length === 0 && <li className="empty">No active tasks</li>}
+                  {displayedActiveTasks.map((task) => (
+                    <li
+                      key={task.id}
+                      className={`task-item ${selectedTask?.id === task.id ? 'selected' : ''}`}
+                      onClick={() => handleClickTask(task)}
+
+                    >
+                      <div className="task-main">
+                        <input
+                          type="checkbox"
+                          checked={task.completed}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            toggleCompleted(task);
+                          }}
+                        />
+                        <span className="task-title">{task.title}</span>
+                        {task.description && <span className="task-desc">...</span>}
+                        <span className="task-actions">
+                          <button
+                            className="star-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleStarred(task);
+                            }}
+                            aria-label={task.starred ? 'Unstar task' : 'Star task'}
+                          >
+                            {task.starred ? '⭐' : '☆'}
+                          </button>
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
 
             <div className="completed-block">
               <button
@@ -209,16 +305,16 @@ const TaskManager: React.FC = () => {
                 onClick={() => setCompletedCollapsed(c => !c)}
                 aria-expanded={!completedCollapsed}
               >
-                {completedCollapsed ? `Show completed (${completedTasks.length})` : `Hide completed (${completedTasks.length})`}
+                {completedCollapsed ? `Show completed (${displayedCompletedTasks.length})` : `Hide completed (${displayedCompletedTasks.length})`}
               </button>
 
               {!completedCollapsed && (
                 <div className="completed-list">
-                  {completedTasks.length === 0 ? (
+                  {displayedCompletedTasks.length === 0 ? (
                     <div className="empty">No completed tasks</div>
                   ) : (
                     <ul>
-                      {completedTasks.map(ct => (
+                      {displayedCompletedTasks.map(ct => (
                         <li
                           key={ct.id}
                           className="completed-item"
@@ -255,6 +351,7 @@ const TaskManager: React.FC = () => {
                 <div className="detail-row"><strong>Title:</strong> {selectedTask.title}</div>
                 <div className="detail-row"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
                 <div className="detail-row"><strong>Completed:</strong> {selectedTask.completed ? 'Yes' : 'No'}</div>
+                <div className="detail-row"><strong>Starred:</strong> {selectedTask.starred ? 'Yes' : 'No'}</div>
                 <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
                 <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
 

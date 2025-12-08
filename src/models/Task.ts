@@ -5,5 +5,6 @@ export interface Task {
     createdDate: number;
     updatedDate: number;
     completed: boolean;
+    starred: boolean;
     deleted: boolean;
 }

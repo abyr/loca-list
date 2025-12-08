@@ -39,6 +39,9 @@ li {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  transition: transform 220ms ease, opacity 220ms ease;
+  transform: translateX(0);
+  opacity: 1;
 }
 .sidebar ul {
   list-style: none;
@@ -332,6 +335,10 @@ button {
 .edit-buttons {
   display: flex;
   gap: 8px;
+}
+
+.task-actions {
+  margin-left: auto;
 }
 
 /* Responsiveness */
