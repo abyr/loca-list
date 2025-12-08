@@ -177,12 +177,13 @@ button {
   display: flex;
   align-items: center;
   gap: 8px;
-  justify-content: space-between;
+  justify-content: flex-start; /* avoid pushing children outside */
   min-width: 200px;
 }
 .search-block input {
-  width: auto;
-  padding: 10px 14px 10px 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 40px 10px 12px; /* reserve right padding for the icon */
   border-radius: 10px;
   border: 1px solid #e6eef6;
   background: #fff;
@@ -190,9 +191,17 @@ button {
   flex: 1 0 auto;
 }
 .search-block .search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #94a3b8;
   pointer-events: none;
-  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
 }
 
 /* Task list */

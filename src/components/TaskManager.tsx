@@ -20,10 +20,21 @@ const TaskManager: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [completedCollapsed, setCompletedCollapsed] = useState(true);
+  const [visibleFeedback, setVisibleFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
+
+  useEffect(() => {
+    if (!feedback) {
+      setVisibleFeedback(null);
+      return;
+    }
+    setVisibleFeedback(feedback);
+    const t = setTimeout(() => setVisibleFeedback(null), 10 * 1000);
+    return () => clearTimeout(t);
+  }, [feedback]);
 
   const {
     title: addTitle,
@@ -211,10 +222,20 @@ const TaskManager: React.FC = () => {
                         <li
                           key={ct.id}
                           className="completed-item"
-                          onClick={() => toggleCompleted(ct)}
+                          onClick={() => {
+                            // show details instead of toggling completed state
+                            setSelectedTask(ct);
+                            setEditingTaskId(null);
+                          }}
                           role="button"
                           tabIndex={0}
-                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleCompleted(ct); }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedTask(ct);
+                              setEditingTaskId(null);
+                            }
+                          }}
                         >
                           <div className="completed-title">{ct.title}</div>
                           {ct.description && <div className="completed-desc">{ct.description}</div>}
@@ -273,7 +294,7 @@ const TaskManager: React.FC = () => {
           ) : ''}
         </div>
 
-        {feedback && <div className="feedback">{feedback}</div>}
+        {visibleFeedback && <div className="feedback">{visibleFeedback}</div>}
 
       </div>
     </div>
