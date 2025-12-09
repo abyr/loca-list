@@ -401,3 +401,11 @@ button {
   }
 }
 
+.tag-divider {
+  height: 1px;
+  margin: 0;
+  border: none;
+  list-style: none;
+  cursor: default;
+  pointer-events: none;
+}

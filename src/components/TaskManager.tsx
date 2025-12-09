@@ -22,6 +22,7 @@ const TaskManager: React.FC = () => {
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [visibleFeedback, setVisibleFeedback] = useState<string | null>(null);
   const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | null>('inbox');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   useEffect(() => {
     loadTasks();
@@ -135,11 +136,40 @@ const TaskManager: React.FC = () => {
 
   // Determine which tasks to display based on selected box
   const starredTasks = tasks.filter(t => t.starred && !t.deleted);
-  const displayedActiveTasks = selectedBox === 'done' ? [] : selectedBox === 'starred' ? starredTasks : activeTasks.sort((a, b) => {
+
+  const filterTasksByTag = (taskList: Task[]) => {
+    if (!selectedTag) return taskList;
+    if (selectedTag === 'no-tags') {
+      return taskList.filter(task => !task.title.match(/#\w+/));
+    }
+    return taskList.filter(task => task.title.includes(`#${selectedTag}`));
+  };
+
+  const displayedActiveTasks = selectedBox === 'done' ? [] : selectedBox === 'starred' ? filterTasksByTag(starredTasks) : filterTasksByTag(activeTasks.sort((a, b) => {
     if (a.starred === b.starred) return 0;
     return a.starred ? -1 : 1;
+  }));
+  const displayedCompletedTasks = selectedBox === 'done' ? filterTasksByTag(completedTasks) : [];
+
+  // Extract unique hashtags from all tasks
+  const extractHashtags = (text: string) => {
+    const matches = text.match(/#\w+/g) || [];
+    return matches.map(tag => tag.substring(1)); // Remove the # symbol
+  };
+
+  const allTags = new Set<string>();
+  tasks.forEach(task => {
+    extractHashtags(task.title).forEach(tag => allTags.add(tag));
   });
-  const displayedCompletedTasks = selectedBox === 'done' ? completedTasks : [];
+  const uniqueTags = Array.from(allTags).sort();
+
+  const getTagCount = (tag: string) => {
+    return tasks.filter(task => task.title.includes(`#${tag}`) && !task.deleted).length;
+  };
+
+  const getNoTagsCount = () => {
+    return tasks.filter(task => !task.title.match(/#\w+/) && !task.deleted).length;
+  };
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -168,9 +198,45 @@ const TaskManager: React.FC = () => {
           <span className="search-icon">🔍</span> {/* Unicode character for magnifying glass */}
         </div>
         <ul className="box-list">
-          <li className={`box-item ${selectedBox === 'inbox' ? 'active' : ''}`} onClick={() => setSelectedBox('inbox')}>Inbox {activeTasks.length > 0 && <span className="badge">{activeTasks.length}</span>}</li>
-          <li className={`box-item ${selectedBox === 'starred' ? 'active' : ''}`} onClick={() => setSelectedBox('starred')}>Starred {starredTasks.length > 0 && <span className="badge">{starredTasks.length}</span>}</li>
-          <li className={`box-item ${selectedBox === 'done' ? 'active' : ''}`} onClick={() => setSelectedBox('done')}>Done {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}</li>
+          <li
+            className={`box-item ${selectedBox === 'inbox' && !selectedTag ? 'active' : ''}`}
+            onClick={() => { setSelectedBox('inbox'); setSelectedTag(null); }}
+          >
+            Inbox {activeTasks.length > 0 && <span className="badge">{activeTasks.length}</span>}
+          </li>
+          <li
+            className={`box-item ${selectedBox === 'starred' && !selectedTag ? 'active' : ''}`}
+            onClick={() => { setSelectedBox('starred'); setSelectedTag(null); }}
+          >
+            Starred {starredTasks.length > 0 && <span className="badge">{starredTasks.length}</span>}
+          </li>
+          <li
+            className={`box-item ${selectedBox === 'done' && !selectedTag ? 'active' : ''}`}
+            onClick={() => { setSelectedBox('done'); setSelectedTag(null); }}
+          >
+            Done {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
+          </li>
+
+          {uniqueTags.length > 0 && <li className="tag-divider"></li>}
+
+          {uniqueTags.map(tag => (
+            <li
+              key={tag}
+              className={`box-item tag-item ${selectedTag === tag ? 'active' : ''}`}
+              onClick={() => { setSelectedTag(tag); setSelectedBox('inbox'); }}
+            >
+              #{tag} {getTagCount(tag) > 0 && <span className="badge">{getTagCount(tag)}</span>}
+            </li>
+          ))}
+
+          {uniqueTags.length > 0 && <li className="tag-divider"></li>}
+
+          <li
+            className={`box-item tag-missed ${selectedTag === 'no-tags' ? 'active' : ''}`}
+            onClick={() => { setSelectedTag('no-tags'); setSelectedBox('inbox'); }}
+          >
+            No tags {getNoTagsCount() > 0 && <span className="badge">{getNoTagsCount()}</span>}
+          </li>
         </ul>
       </div>
 
