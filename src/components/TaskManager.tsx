@@ -164,17 +164,19 @@ const TaskManager: React.FC = () => {
   const uniqueTags = Array.from(allTags).sort();
 
   const getTagCount = (tag: string) => {
-    return tasks.filter(task => task.title.includes(`#${tag}`) && !task.deleted).length;
+    return tasks.filter(task => task.title.includes(`#${tag}`) && !task.deleted && !task.completed).length;
   };
 
   const getNoTagsCount = () => {
-    return tasks.filter(task => !task.title.match(/#\w+/) && !task.deleted).length;
+    return tasks.filter(task => !task.title.match(/#\w+/) && !task.deleted && !task.completed).length;
   };
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+    }
     setSidebarOpen(s => !s);
   };
 
