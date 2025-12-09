@@ -20,7 +20,6 @@ const TaskManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [completedCollapsed, setCompletedCollapsed] = useState(true);
   const [visibleFeedback, setVisibleFeedback] = useState<string | null>(null);
   const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | null>('inbox');
 
@@ -127,7 +126,6 @@ const TaskManager: React.FC = () => {
     if (selectedTask?.completed) {
       setSelectedTask(null);
     }
-    setCompletedCollapsed(true);
   };
 
   const {
@@ -300,46 +298,33 @@ const TaskManager: React.FC = () => {
             )}
 
             <div className="completed-block">
-              <button
-                className="collapse-toggle"
-                onClick={() => setCompletedCollapsed(c => !c)}
-                aria-expanded={!completedCollapsed}
-              >
-                {completedCollapsed ? `Show completed (${displayedCompletedTasks.length})` : `Hide completed (${displayedCompletedTasks.length})`}
-              </button>
-
-              {!completedCollapsed && (
+              {selectedBox !== 'done' && displayedCompletedTasks.length > 0 && (
                 <div className="completed-list">
-                  {displayedCompletedTasks.length === 0 ? (
-                    <div className="empty">No completed tasks</div>
-                  ) : (
-                    <ul>
-                      {displayedCompletedTasks.map(ct => (
-                        <li
-                          key={ct.id}
-                          className="completed-item"
-                          onClick={() => {
-                            // show details instead of toggling completed state
+                  <ul>
+                    {displayedCompletedTasks.map(ct => (
+                      <li
+                        key={ct.id}
+                        className="completed-item"
+                        onClick={() => {
+                          setSelectedTask(ct);
+                          setEditingTaskId(null);
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
                             setSelectedTask(ct);
                             setEditingTaskId(null);
-                          }}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault();
-                              setSelectedTask(ct);
-                              setEditingTaskId(null);
-                            }
-                          }}
-                        >
-                          <div className="completed-title">{ct.title}</div>
-                          {ct.description && <div className="completed-desc">{ct.description}</div>}
-                          <div className="completed-meta">Completed: {new Date(ct.updatedDate).toLocaleString()}</div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                          }
+                        }}
+                      >
+                        <div className="completed-title">{ct.title}</div>
+                        {ct.description && <div className="completed-desc">{ct.description}</div>}
+                        <div className="completed-meta">Completed: {new Date(ct.updatedDate).toLocaleString()}</div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>
