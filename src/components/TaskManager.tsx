@@ -88,10 +88,8 @@ const TaskManager: React.FC = () => {
   });
 
   const toggleCompleted = async (task: Task) => {
+    setSelectedTask(null);
     await updateTask({ ...task, completed: !task.completed, updatedDate: Date.now() });
-    if (selectedTask?.id === task.id) {
-      setSelectedTask({ ...task, completed: !task.completed });
-    }
   };
 
   const toggleStarred = async (task: Task) => {
