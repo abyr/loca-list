@@ -7,6 +7,7 @@ import Sidebar from './Sidebar';
 import TaskList from './TaskList';
 import TaskDetails from './TaskDetails';
 import CompletedTasksSection from './CompletedTasksSection';
+import AddTask from './AddTask';
 import './TaskManager.css';
 
 const TaskManager: React.FC = () => {
@@ -201,15 +202,11 @@ const TaskManager: React.FC = () => {
             </div>
 
             <div className="left-header">
-              <div className="add-task-block">
-                <input
-                  type="text"
-                  placeholder="New task title"
-                  value={addTitle}
-                  onChange={e => setAddTitle(e.target.value)}
-                />
-                <button onClick={submitAdd}>Add</button>
-              </div>
+              <AddTask
+                title={addTitle}
+                setTitle={setAddTitle}
+                onSubmit={submitAdd}
+              />
             </div>
 
             {selectedBox === 'done' ? (

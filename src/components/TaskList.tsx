@@ -43,6 +43,7 @@ const TaskList: React.FC<TaskListProps> = ({
               />
               <span className="task-title">{task.title}</span>
               {task.description && <span className="task-desc">...</span>}
+
               <span className="task-actions">
                 <button
                   className="star-btn"

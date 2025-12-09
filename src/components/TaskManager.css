@@ -271,7 +271,9 @@ button {
   text-overflow: ellipsis;
 }
 .task-desc {
-  margin-left: auto;
+  margin-left: 0 !important;
+  margin-right: auto;
+  text-align: left;
   color: #94a3b8;
   font-size: 13px;
 }
@@ -315,7 +317,10 @@ button {
   margin-bottom: 8px;
   color: #0b1220;
 }
-.detail-row strong { color: #0b1220; margin-right: 6px; }
+.detail-row strong {
+  color: #0b1220;
+  margin-right: 6px;
+}
 
 .details-actions {
   display: flex;
@@ -337,6 +342,9 @@ button {
   background: #fff;
   font-size: 14px;
   resize: vertical;
+}
+.edit-form textarea {
+  height: 100px;
 }
 .edit-buttons {
   display: flex;
