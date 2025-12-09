@@ -144,6 +144,12 @@ li {
   flex-wrap: wrap;
 }
 
+.box-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 8px 0;
+}
+
 .add-task-block {
   display: flex;
   gap: 8px;
@@ -339,6 +345,12 @@ button {
 
 .task-actions {
   margin-left: auto;
+}
+
+.edit-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Responsiveness */

@@ -51,7 +51,7 @@ const TaskManager: React.FC = () => {
       updatedDate: Date.now(),
       completed: false,
       deleted: false,
-      starred: false, // Ensure starred is set to false when adding a new task
+      starred: false,
     });
     resetAddForm();
   });
@@ -61,9 +61,11 @@ const TaskManager: React.FC = () => {
     setTitle: setEditTitle,
     description: editDesc,
     setDescription: setEditDesc,
+    completed: editCompleted,
+    setCompleted: setEditCompleted,
     reset: resetEditForm,
     handleSubmit: submitEdit,
-  } = useTaskForm(selectedTask, async ({ title, description }) => {
+  } = useTaskForm(selectedTask, async ({ title, description, completed }) => {
     if (editingTaskId === null) return;
     const original = selectedTask ?? tasks.find(t => t.id === editingTaskId);
     await updateTask({
@@ -72,7 +74,7 @@ const TaskManager: React.FC = () => {
       description,
       createdDate: original?.createdDate ?? Date.now(),
       updatedDate: Date.now(),
-      completed: original?.completed ?? false,
+      completed: completed ?? original?.completed ?? false,
       deleted: original?.deleted ?? false,
       starred: original?.starred ?? false, // Preserve starred status
     });
@@ -86,6 +88,7 @@ const TaskManager: React.FC = () => {
     if (selectedTask?.id === task.id) {
       setSelectedTask({ ...task, completed: !task.completed });
     }
+    return false;
   };
 
   const toggleStarred = async (task: Task) => {
@@ -93,6 +96,7 @@ const TaskManager: React.FC = () => {
     if (selectedTask?.id === task.id) {
       setSelectedTask({ ...task, starred: !task.starred });
     }
+    return false;
   };
 
   const startEditFromDetails = () => {
@@ -280,13 +284,15 @@ const TaskManager: React.FC = () => {
             {selectedBox === 'done' && (
               <div className="done-block">
                 <h2 className="box-title">Done</h2>
-                <button
-                  className="delete-all-btn"
-                  onClick={deleteAllCompleted}
-                  disabled={completedTasks.length === 0}
-                >
-                  Delete all completed tasks
-                </button>
+                <div className='box-actions'>
+                  <button
+                    className="delete-all-btn"
+                    onClick={deleteAllCompleted}
+                    disabled={completedTasks.length === 0}
+                  >
+                    Delete all completed tasks
+                  </button>
+                </div>
                 <div className="completed-list">
                   {completedTasks.length === 0 ? (
                     <div className="empty">No completed tasks</div>
@@ -342,6 +348,7 @@ const TaskManager: React.FC = () => {
                           onChange={(e) => {
                             e.stopPropagation();
                             toggleCompleted(task);
+                            setSelectedTask(null);
                           }}
                         />
                         <span className="task-title">{task.title}</span>
@@ -427,6 +434,16 @@ const TaskManager: React.FC = () => {
                       value={editDesc}
                       onChange={(e) => setEditDesc(e.target.value)}
                     />
+                    { selectedTask.completed && (
+                      <label className="edit-checkbox-row">
+                        <input
+                          type="checkbox"
+                          checked={editCompleted}
+                          onChange={(e) => setEditCompleted(e.target.checked)}
+                        />
+                        <span>Completed</span>
+                      </label>
+                    ) }
                     <div className="edit-buttons">
                       <button onClick={submitEdit}>Save</button>
                       <button
