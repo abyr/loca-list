@@ -224,6 +224,7 @@ const TaskManager: React.FC = () => {
                   displayedActiveTasks={displayedActiveTasks}
                   selectedTask={selectedTask}
                   selectedBox={selectedBox}
+                  selectedTag={selectedTag}
                   onTaskClick={handleClickTask}
                   onToggleCompleted={toggleCompleted}
                   onToggleStarred={toggleStarred}

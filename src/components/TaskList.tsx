@@ -6,6 +6,7 @@ interface TaskListProps {
   displayedActiveTasks: Task[];
   selectedTask: Task | null;
   selectedBox: 'inbox' | 'starred' | 'done' | null;
+  selectedTag: string | null;
   onTaskClick: (task: Task) => void;
   onToggleCompleted: (task: Task) => void;
   onToggleStarred: (task: Task) => void;
@@ -15,6 +16,7 @@ const TaskList: React.FC<TaskListProps> = ({
   displayedActiveTasks,
   selectedTask,
   selectedBox,
+  selectedTag,
   onTaskClick,
   onToggleCompleted,
   onToggleStarred,
@@ -22,7 +24,10 @@ const TaskList: React.FC<TaskListProps> = ({
   return (
     <>
       <h2 className="box-title">
-        {selectedBox === 'inbox' ? 'Inbox' : selectedBox === 'starred' ? 'Starred' : 'Active Tasks'}
+        {selectedTag ?
+            `#${selectedTag}` :
+            (selectedBox === 'inbox') ? 'Inbox' : selectedBox === 'starred' ? 'Starred' : ''
+        }
       </h2>
       <ul className="task-list">
         {displayedActiveTasks.length === 0 && <li className="empty">No active tasks</li>}
