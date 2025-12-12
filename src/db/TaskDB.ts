@@ -109,4 +109,24 @@ export class TaskDB {
             }
         });
     }
+
+    public async deleteAllTasks(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (this.db) {
+                const transaction = this.db.transaction(this.storeName, 'readwrite');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.clear();
+
+                request.onsuccess = () => {
+                    resolve();
+                };
+
+                request.onerror = () => {
+                    reject('Delete All Tasks error: ' + request.error);
+                };
+            } else {
+                reject('Database is not initialized.');
+            }
+        });
+    }
 }
