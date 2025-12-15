@@ -23,7 +23,7 @@ const CompletedTasksSection: React.FC<CompletedTasksSectionProps> = ({
         <h2 className="box-title">Done</h2>
         <div className='box-actions'>
           <button
-            className="delete-all-btn"
+            className="delete-all-btn danger"
             onClick={onDeleteAll}
             disabled={completedTasks.length === 0}
           >
