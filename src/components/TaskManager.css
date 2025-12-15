@@ -225,6 +225,11 @@ input[type="checkbox"]:checked::after {
   gap: 12px;
 }
 
+.phone .col.right {
+  width: auto;
+  flex: 1 1 auto;
+}
+
 .left-header {
   display: flex;
   gap: 12px;
@@ -532,4 +537,9 @@ detail-row {
   .nav-sidebar {
     display: none !important;
   }
+}
+
+/* Utils */
+.hidden {
+  display: none;
 }

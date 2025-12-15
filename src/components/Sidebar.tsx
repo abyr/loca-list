@@ -107,6 +107,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="sidebar-header">
         <div className="search-block">
           <input
+            id="search-tasks-input"
             type="text"
             placeholder="Search tasks..."
             value={searchTerm}

@@ -3,6 +3,7 @@ import { Task } from '../models/Task';
 import { useTaskDB } from '../hooks/useTaskDB';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { useTaskFilter } from '../hooks/useTaskFilter';
+import { useScreenWidth } from '../hooks/useScreenWidth';
 import Sidebar from './Sidebar';
 import TaskList from './TaskList';
 import TaskDetails from './TaskDetails';
@@ -27,6 +28,8 @@ const TaskManager: React.FC = () => {
   const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | null>('inbox');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isMobile } = useScreenWidth();
+  const isMobileLayout = isMobile;
 
   useEffect(() => {
     loadTasks();
@@ -172,7 +175,12 @@ const TaskManager: React.FC = () => {
   };
 
   return (
-    <div className={`wrapper ${sidebarOpen ? 'sidebar-open' : ''}`} onClick={() => setSidebarOpen(false)}>
+    <div className={`wrapper
+      ${sidebarOpen ? 'sidebar-open' : ''}
+      ${isMobileLayout ? 'phone' : 'desktop'}
+    `}
+      onClick={() => setSidebarOpen(false)}
+    >
       <Sidebar
         tasks={tasks}
         activeTasks={activeTasks}
@@ -188,9 +196,11 @@ const TaskManager: React.FC = () => {
         onToggleSidebar={toggleSidebar}
       />
 
-      <div className={`task-manager ${selectedTask ? 'two-column' : 'one-column'}`}>
+      <div className={`task-manager
+          ${!isMobileLayout ? 'two-column' : 'one-column'}
+        `}>
         <div className="columns">
-          <aside className="col left">
+          <aside className={`col left ${(selectedTask && isMobileLayout) ? 'hidden' : ''}`}>
             <div className="left-navigation-bar">
               <li>
                 <button
