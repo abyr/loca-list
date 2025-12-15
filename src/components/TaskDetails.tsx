@@ -10,6 +10,7 @@ interface TaskDetailsProps {
   editCompleted: boolean;
   onClose: () => void;
   onEdit: () => void;
+  onDelete: () => void;
   onEditTitleChange: (title: string) => void;
   onEditDescChange: (desc: string) => void;
   onEditCompletedChange: (completed: boolean) => void;
@@ -24,6 +25,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   editCompleted,
   onClose,
   onEdit,
+  onDelete,
   onEditTitleChange,
   onEditDescChange,
   onEditCompletedChange,
@@ -44,6 +46,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
         <div className="details-actions">
           <button onClick={onClose}>Close</button>
           <button onClick={onEdit}>Edit</button>
+          <button className="danger" onClick={onDelete}>Delete</button>
         </div>
 
         {editingTaskId !== null && (

@@ -29,7 +29,7 @@ const TaskList: React.FC<TaskListProps> = ({
             (selectedBox === 'inbox') ? 'Inbox' : selectedBox === 'starred' ? 'Starred' : ''
         }
       </h2>
-      <ul className="task-list">
+      <ul className="task-list card">
         {displayedActiveTasks.length === 0 && <li className="empty">No active tasks</li>}
         {displayedActiveTasks.map((task) => (
           <li

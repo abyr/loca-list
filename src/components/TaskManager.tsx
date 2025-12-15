@@ -115,6 +115,14 @@ const TaskManager: React.FC = () => {
     setSelectedTask(null);
   };
 
+  const handleDeleteTask = async () => {
+    if (!selectedTask) return;
+    const confirmed = window.confirm('Are you sure you want to delete this task? This action cannot be undone.');
+    if (!confirmed) return;
+    await deleteTask(selectedTask.id!);
+    setSelectedTask(null);
+  }
+
   const deleteAllCompleted = async () => {
     const confirmed = window.confirm('Are you sure you want to delete all completed tasks? This action cannot be undone.');
     if (!confirmed) return;
@@ -251,6 +259,7 @@ const TaskManager: React.FC = () => {
             editCompleted={editCompleted}
             onClose={handleCloseDetails}
             onEdit={startEditFromDetails}
+            onDelete={handleDeleteTask}
             onEditTitleChange={setEditTitle}
             onEditDescChange={setEditDesc}
             onEditCompletedChange={setEditCompleted}
