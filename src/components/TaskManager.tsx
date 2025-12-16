@@ -46,13 +46,17 @@ const TaskManager: React.FC = () => {
   }, [feedback]);
 
   const {
-    title: addTitle,
-    setTitle: setAddTitle,
-    reset: resetAddForm,
-    handleSubmit: submitAdd,
+    title: newTitle,
+    setTitle: setNewTitle,
+    reset: resetAddTaskForm,
+    onSubmit: onSubmitNewTask,
   } = useTaskForm(null, async ({ title, description }) => {
+    const newTitle = addSelectedTagToTitle(title);
+
+    closeDetails();
+
     await addTask({
-      title,
+      title: newTitle,
       description,
       createdDate: Date.now(),
       updatedDate: Date.now(),
@@ -60,8 +64,20 @@ const TaskManager: React.FC = () => {
       deleted: false,
       starred: false,
     });
-    resetAddForm();
+    resetAddTaskForm();
   });
+
+  const addSelectedTagToTitle = (title: string) => {
+    if (!selectedTag) {
+      return title;
+    }
+    const tag = '#' + selectedTag;
+    if (title.includes(tag)) {
+      return title;
+    }
+
+    return title + ` ${tag}`;
+  }
 
   const {
     title: editTitle,
@@ -71,7 +87,7 @@ const TaskManager: React.FC = () => {
     completed: editCompleted,
     setCompleted: setEditCompleted,
     reset: resetEditForm,
-    handleSubmit: submitEdit,
+    onSubmit: submitEdit,
   } = useTaskForm(selectedTask, async ({ title, description, completed }) => {
     if (editingTaskId === null) return;
     const original = selectedTask ?? tasks.find(t => t.id === editingTaskId);
@@ -107,18 +123,18 @@ const TaskManager: React.FC = () => {
     setEditingTaskId(selectedTask.id ?? null);
   };
 
-  const handleClickTask = (task: Task) => {
+  const onClickTask = (task: Task) => {
     if (editingTaskId !== null) return;
     setSelectedTask(selectedTask?.id === task.id ? null : task);
   };
 
-  const handleCloseDetails = () => {
+  const closeDetails = () => {
     resetEditForm();
     setEditingTaskId(null);
     setSelectedTask(null);
   };
 
-  const handleDeleteTask = async () => {
+  const onDeleteTask = async () => {
     if (!selectedTask) return;
     const confirmed = window.confirm('Are you sure you want to delete this task? This action cannot be undone.');
     if (!confirmed) return;
@@ -167,12 +183,22 @@ const TaskManager: React.FC = () => {
     setSidebarOpen(s => !s);
   };
 
-  const handleToggleKeyDown = (e: React.KeyboardEvent, fn: (e?: React.MouseEvent) => void) => {
+  const onToggleKeyDown = (e: React.KeyboardEvent, fn: (e?: React.MouseEvent) => void) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       fn((e as unknown) as React.MouseEvent);
     }
   };
+
+  const onTagSelect = (tag: string | null) => {
+    closeDetails();
+    setSelectedTag(tag);
+  }
+
+  const onBoxSelect = (box: 'inbox' | 'starred' | 'done') => {
+    closeDetails();
+    setSelectedBox(box);
+  }
 
   return (
     <div className={`wrapper ${
@@ -189,9 +215,9 @@ const TaskManager: React.FC = () => {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         selectedBox={selectedBox}
-        onBoxSelect={setSelectedBox}
+        onBoxSelect={onBoxSelect}
         selectedTag={selectedTag}
-        onTagSelect={setSelectedTag}
+        onTagSelect={onTagSelect}
         sidebarOpen={sidebarOpen}
         onToggleSidebar={toggleSidebar}
       />
@@ -206,7 +232,7 @@ const TaskManager: React.FC = () => {
                 <button
                   className="nav-sidebar"
                   onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
-                  onKeyDown={(e) => handleToggleKeyDown(e, toggleSidebar)}
+                  onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}
                   aria-expanded={sidebarOpen}
                   aria-controls="sidebar"
                   aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
@@ -219,9 +245,9 @@ const TaskManager: React.FC = () => {
 
             <div className="left-header">
               <AddTask
-                title={addTitle}
-                setTitle={setAddTitle}
-                onSubmit={submitAdd}
+                title={newTitle}
+                setTitle={setNewTitle}
+                onSubmit={onSubmitNewTask}
               />
             </div>
 
@@ -243,7 +269,7 @@ const TaskManager: React.FC = () => {
                   selectedTask={selectedTask}
                   selectedBox={selectedBox}
                   selectedTag={selectedTag}
-                  onTaskClick={handleClickTask}
+                  onTaskClick={onClickTask}
                   onToggleCompleted={toggleCompleted}
                   onToggleStarred={toggleStarred}
                 />
@@ -267,9 +293,9 @@ const TaskManager: React.FC = () => {
             editTitle={editTitle}
             editDesc={editDesc}
             editCompleted={editCompleted}
-            onClose={handleCloseDetails}
+            onClose={closeDetails}
             onEdit={startEditFromDetails}
-            onDelete={handleDeleteTask}
+            onDelete={onDeleteTask}
             onEditTitleChange={setEditTitle}
             onEditDescChange={setEditDesc}
             onEditCompletedChange={setEditCompleted}

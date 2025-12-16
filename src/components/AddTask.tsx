@@ -7,6 +7,8 @@ interface AddTaskProps {
   onSubmit: () => void;
 }
 
+
+
 const AddTask: React.FC<AddTaskProps> = ({ title, setTitle, onSubmit }) => {
   return (
     <div className="add-task-block">

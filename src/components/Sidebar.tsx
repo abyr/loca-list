@@ -2,7 +2,6 @@ import React from 'react';
 import { Task } from '../models/Task';
 import { useTaskDB } from '../hooks/useTaskDB';
 import './TaskManager.css';
-import { resolveModuleName } from 'typescript';
 
 interface SidebarProps {
   tasks: Task[];
@@ -75,8 +74,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           importedTasks.forEach(task => {
             addTask(task);
           });
-
-          console.log('Imported Tasks:', importedTasks);
 
           window.location.reload();
 

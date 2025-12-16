@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 
-export function useScreenWidth(breakpoint: number = 768): {
+const PHONE_MAX_WIDTH = 768;
+
+export function useScreenWidth(breakpoint: number = PHONE_MAX_WIDTH): {
   width: number;
   isMobile: boolean;
 } {
