@@ -3,21 +3,29 @@ import { Task } from '../models/Task';
 
 export const useTaskForm = (
   initialTask: Task | null,
-  doSubmit: (payload: { title: string; description: string; completed?: boolean }) => void
+  doSubmit: (payload: {
+    title: string;
+    description: string;
+    completed?: boolean;
+    priority?: '' | 'low' | 'medium' | 'high'
+  }) => void
 ) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [completed, setCompleted] = useState(false);
+  const [priority, setPriority] = useState<'' | 'low' | 'medium' | 'high'>('');
 
   useEffect(() => {
     if (initialTask) {
       setTitle(initialTask.title);
       setDescription(initialTask.description ?? '');
       setCompleted(initialTask.completed ?? false);
+      setPriority(initialTask.priority ?? '');
     } else {
       setTitle('');
       setDescription('');
       setCompleted(false);
+      setPriority('');
     }
   }, [initialTask]);
 
@@ -25,6 +33,7 @@ export const useTaskForm = (
     setTitle('');
     setDescription('');
     setCompleted(false);
+    setPriority('');
   };
 
   const onSubmit = () => {
@@ -32,7 +41,8 @@ export const useTaskForm = (
     doSubmit({
       title: title.trim(),
       description: description.trim(),
-      completed
+      completed,
+      priority
     });
     reset();
   };
@@ -44,6 +54,8 @@ export const useTaskForm = (
     setDescription,
     completed,
     setCompleted,
+    priority,
+    setPriority,
     reset,
     onSubmit,
   };

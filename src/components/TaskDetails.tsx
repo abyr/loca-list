@@ -8,12 +8,14 @@ interface TaskDetailsProps {
   editTitle: string;
   editDesc: string;
   editCompleted: boolean;
+  editPriority: '' | 'low' | 'medium' | 'high';
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
   onEditTitleChange: (title: string) => void;
   onEditDescChange: (desc: string) => void;
   onEditCompletedChange: (completed: boolean) => void;
+  onEditPriorityChange: (priority: '' | 'low' | 'medium' | 'high') => void;
   onSave: () => void;
 }
 
@@ -23,12 +25,14 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   editTitle,
   editDesc,
   editCompleted,
+  editPriority,
   onClose,
   onEdit,
   onDelete,
   onEditTitleChange,
   onEditDescChange,
   onEditCompletedChange,
+  onEditPriorityChange,
   onSave,
 }) => {
   if (!selectedTask) return null;
@@ -37,9 +41,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
     <section className="col right">
       <div className="details">
         <div className="detail-row"><strong>Title:</strong> {selectedTask.title}</div>
-        <div className="detail-row"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
-        <div className="detail-row"><strong>Completed:</strong> {selectedTask.completed ? 'Yes' : 'No'}</div>
         <div className="detail-row"><strong>Starred:</strong> {selectedTask.starred ? 'Yes' : 'No'}</div>
+        <div className="detail-row"><strong>Priority:</strong> {selectedTask.priority || 'None'}</div>
+        <div className="detail-row"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
         <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
         <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
 
@@ -73,6 +77,17 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 <span>Completed</span>
               </label>
             )}
+
+            <select className="edit-priority-select"
+                    value={editPriority}
+                    onChange={(e) => { onEditPriorityChange(e.target.value as '' | 'low' | 'medium' | 'high'); }}
+            >
+              <option value="">No Priority</option>
+              <option value="low" selected={editPriority === 'low'}>Low Priority</option>
+              <option value="medium" selected={editPriority === 'medium'}>Medium Priority</option>
+              <option value="high" selected={editPriority === 'high'}>High Priority</option>
+            </select>
+
             <div className="edit-buttons">
               <button onClick={onSave}>Save</button>
               <button onClick={onClose}>Cancel</button>

@@ -63,6 +63,7 @@ const TaskManager: React.FC = () => {
       completed: false,
       deleted: false,
       starred: false,
+      priority: '',
     });
     resetAddTaskForm();
   });
@@ -86,6 +87,8 @@ const TaskManager: React.FC = () => {
     setDescription: setEditDesc,
     completed: editCompleted,
     setCompleted: setEditCompleted,
+    priority: editPriority,
+    setPriority: setEditPriority,
     reset: resetEditForm,
     onSubmit: submitEdit,
   } = useTaskForm(selectedTask, async ({ title, description, completed }) => {
@@ -100,6 +103,7 @@ const TaskManager: React.FC = () => {
       completed: completed ?? original?.completed ?? false,
       deleted: original?.deleted ?? false,
       starred: original?.starred ?? false,
+      priority: editPriority ?? original?.priority ?? '',
     });
     setEditingTaskId(null);
     setSelectedTask(null);
@@ -293,12 +297,14 @@ const TaskManager: React.FC = () => {
             editTitle={editTitle}
             editDesc={editDesc}
             editCompleted={editCompleted}
+            editPriority={editPriority}
             onClose={closeDetails}
             onEdit={startEditFromDetails}
             onDelete={onDeleteTask}
             onEditTitleChange={setEditTitle}
             onEditDescChange={setEditDesc}
             onEditCompletedChange={setEditCompleted}
+            onEditPriorityChange={setEditPriority}
             onSave={submitEdit}
           />
         </div>

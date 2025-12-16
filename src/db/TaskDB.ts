@@ -1,7 +1,7 @@
 import { Task } from '../models/Task';
 
 export class TaskDB {
-    private dbName: string = 'TaskDB';
+    private dbName: string = 'LocaListDB';
     private storeName: string = 'Tasks';
     private db: IDBDatabase | null = null;
 
