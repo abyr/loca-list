@@ -1,6 +1,11 @@
 import React from 'react';
 import { Task } from '../models/Task';
 import { useTaskDB } from '../hooks/useTaskDB';
+import FolderIcon from './icons/FolderIcon';
+import TagIcon from './icons/TagIcon';
+import StarIcon from './icons/StarIcon';
+import CheckIcon from './icons/CheckIcon';
+import MinusIcon from './icons/MinusIcon';
 import './TaskManager.css';
 
 interface SidebarProps {
@@ -120,19 +125,22 @@ const Sidebar: React.FC<SidebarProps> = ({
             className={`box-item ${selectedBox === 'inbox' && !selectedTag ? 'active' : ''}`}
             onClick={() => { onBoxSelect('inbox'); onTagSelect(null); }}
           >
-            Inbox {activeTasks.length > 0 && <span className="badge">{activeTasks.length}</span>}
+            <FolderIcon title="Inbox" />
+            {activeTasks.length > 0 && <span className="badge">{activeTasks.length}</span>}
           </li>
           <li
             className={`box-item ${selectedBox === 'starred' && !selectedTag ? 'active' : ''}`}
             onClick={() => { onBoxSelect('starred'); onTagSelect(null); }}
           >
-            Starred {starredTasks.length > 0 && <span className="badge">{starredTasks.length}</span>}
+            <StarIcon title="Starred" isFilled={true} />
+            {starredTasks.length > 0 && <span className="badge">{starredTasks.length}</span>}
           </li>
           <li
             className={`box-item ${selectedBox === 'done' && !selectedTag ? 'active' : ''}`}
             onClick={() => { onBoxSelect('done'); onTagSelect(null); }}
           >
-            Done {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
+            <CheckIcon title="Done" checked={true} />
+            {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
           </li>
 
           {uniqueTags.length > 0 && <li className="tag-divider"></li>}
@@ -143,7 +151,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               className={`box-item tag-item ${selectedTag === tag ? 'active' : ''}`}
               onClick={() => { onTagSelect(tag); onBoxSelect('inbox'); }}
             >
-              #{tag} {getTagCount(tag) > 0 && <span className="badge">{getTagCount(tag)}</span>}
+              <TagIcon title={tag} />
+              {getTagCount(tag) > 0 && <span className="badge">{getTagCount(tag)}</span>}
             </li>
           ))}
 
@@ -153,7 +162,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             className={`box-item tag-missed ${selectedTag === 'no-tags' ? 'active' : ''}`}
             onClick={() => { onTagSelect('no-tags'); onBoxSelect('inbox'); }}
           >
-            No tags {getNoTagsCount() > 0 && <span className="badge">{getNoTagsCount()}</span>}
+            <MinusIcon title="No tags" />
+            {getNoTagsCount() > 0 && <span className="badge">{getNoTagsCount()}</span>}
           </li>
         </ul>
       </div>

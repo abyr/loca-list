@@ -1,6 +1,7 @@
 import React from 'react';
 import { Task } from '../models/Task';
 import './TaskManager.css';
+import StarIcon from './icons/StarIcon';
 
 interface TaskListProps {
   displayedActiveTasks: Task[];
@@ -51,14 +52,17 @@ const TaskList: React.FC<TaskListProps> = ({
 
               <span className="task-actions">
                 <button
-                  className="star-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     onToggleStarred(task);
                   }}
                   aria-label={task.starred ? 'Unstar task' : 'Star task'}
                 >
-                  {task.starred ? '⭐' : '☆'}
+                  <StarIcon
+                    ariaLabel={task.starred ? 'Unstar task' : 'Star task'}
+                    isFilled={task.starred}
+                    size={16}
+                  />
                 </button>
               </span>
             </div>
