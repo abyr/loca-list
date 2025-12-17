@@ -6,6 +6,9 @@ import TagIcon from './icons/TagIcon';
 import StarIcon from './icons/StarIcon';
 import CheckIcon from './icons/CheckIcon';
 import MinusIcon from './icons/MinusIcon';
+import SearchIcon from './icons/SearchIcon';
+import ExportIcon from './icons/ExportIcon';
+import ImportIcon from './icons/ImportIcon';
 import './TaskManager.css';
 
 interface SidebarProps {
@@ -115,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
           />
-          <span className="search-icon">🔍</span>
+          <SearchIcon ariaLabel="Search tasks" />
         </div>
       </div>
 
@@ -168,27 +171,22 @@ const Sidebar: React.FC<SidebarProps> = ({
         </ul>
       </div>
       <div className='sidebar-divider'></div>
-      <div className='sidebar-footer'>
-        <ul>
-          <li>
-            <button className="export-tasks-btn" onClick={() => { exportTasks(tasks); }}>
-              Export Tasks
-            </button>
-          </li>
-          <li>
-            <button className="import-tasks-btn" onClick={() => {
+        <div className='sidebar-actions'>
+            <button onClick={() => {
               const confirmed = window.confirm('Importing tasks will DELETE ALL your current tasks. Continue?')
 
               if (confirmed) {
                 importTasks();
               }
             }}>
-              Import Tasks
+              <ImportIcon title='Import tasks' />
             </button>
-          </li>
-        </ul>
+
+            <button onClick={() => { exportTasks(tasks); }} >
+              <ExportIcon title='Export tasks' />
+            </button>
+        </div>
       </div>
-    </div>
   );
 };
 
