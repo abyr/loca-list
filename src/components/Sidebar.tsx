@@ -139,7 +139,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             className={`box-item ${selectedBox === 'done' && !selectedTag ? 'active' : ''}`}
             onClick={() => { onBoxSelect('done'); onTagSelect(null); }}
           >
-            <CheckIcon title="Done" checked={true} />
+            <CheckIcon title="Done" isChecked={true} />
             {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
           </li>
 

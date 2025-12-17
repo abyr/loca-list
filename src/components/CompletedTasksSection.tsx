@@ -1,5 +1,6 @@
 import React from 'react';
 import { Task } from '../models/Task';
+import CheckIcon from './icons/CheckIcon';
 import './TaskManager.css';
 
 interface CompletedTasksSectionProps {
@@ -20,7 +21,9 @@ const CompletedTasksSection: React.FC<CompletedTasksSectionProps> = ({
   if (selectedBox === 'done') {
     return (
       <div className="done-block">
-        <h2 className="box-title">Done</h2>
+        <h2 className="box-title">
+          <CheckIcon title="Done" isChecked={true} />
+        </h2>
         <div className='box-actions'>
           <button
             className="delete-all-btn danger"

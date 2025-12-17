@@ -2,13 +2,13 @@ import React from 'react';
 
 interface CheckIconProps {
     title: string;
-    checked: boolean;
+    isChecked: boolean;
 }
 
-const CheckIcon: React.FC<CheckIconProps> = ({ title, checked }) => {
+const CheckIcon: React.FC<CheckIconProps> = ({ title, isChecked }) => {
     return (
         <div className="icon-box">
-            {checked ? (
+            {isChecked ? (
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"

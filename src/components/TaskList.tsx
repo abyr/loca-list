@@ -1,7 +1,10 @@
 import React from 'react';
 import { Task } from '../models/Task';
 import './TaskManager.css';
+import FolderIcon from './icons/FolderIcon';
+import TagIcon from './icons/TagIcon';
 import StarIcon from './icons/StarIcon';
+import MinusIcon from './icons/MinusIcon';
 
 interface TaskListProps {
   displayedActiveTasks: Task[];
@@ -26,8 +29,14 @@ const TaskList: React.FC<TaskListProps> = ({
     <>
       <h2 className="box-title">
         {selectedTag ?
-            `#${selectedTag}` :
-            (selectedBox === 'inbox') ? 'Inbox' : selectedBox === 'starred' ? 'Starred' : ''
+          (selectedTag === 'no-tags') ?
+            <MinusIcon title={'No tags'} /> :
+            <TagIcon title={selectedTag} /> :
+          (selectedBox === 'inbox') ?
+            <FolderIcon title="Inbox" /> :
+            (selectedBox === 'starred') ?
+              <StarIcon title="Starred" isFilled={true} /> :
+              ''
         }
       </h2>
       <ul className="task-list card">
