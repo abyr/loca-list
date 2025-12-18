@@ -38,6 +38,11 @@
 
   --color-list-divider: lightgray;
   --color-placeholder: slategray;
+
+  --color-priority-high: rgb(234, 21, 21);
+  --color-priority-medium: rgb(14, 122, 149);
+  --color-priority-low: rgba(173, 216, 230, 1);
+  --color-priority-none: white
 }
 
  /* General */
