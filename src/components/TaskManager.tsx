@@ -9,6 +9,7 @@ import TaskList from './TaskList';
 import TaskDetails from './TaskDetails';
 import CompletedTasksSection from './CompletedTasksSection';
 import AddTask from './AddTask';
+import MenuIcon from './icons/MenuIcon';
 import './TaskManager.css';
 
 const TaskManager: React.FC = () => {
@@ -28,6 +29,7 @@ const TaskManager: React.FC = () => {
   const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | null>('inbox');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedContext, setSelectedContext] = useState<string>('anywhere');
   const { isMobile } = useScreenWidth();
   const isMobileLayout = isMobile;
 
@@ -204,7 +206,49 @@ const TaskManager: React.FC = () => {
     setSelectedBox(box);
   }
 
+  const context = [{
+    id: 'anywhere',
+    name: 'Anywhere',
+  }, {
+    id: 'work',
+    name: 'Work',
+  }, {
+    id: 'personal',
+    name: 'Personal',
+  }, {
+    id: 'home',
+    name: 'Home',
+  }, {
+    id: 'projects',
+    name: 'Projects',
+  }, {
+    id: 'waiting',
+    name: 'Waiting For',
+  }, {
+    id: 'maybe',
+    name: 'Someday/Maybe',
+  }];
+
   return (
+  <div className='task-manager-container'>
+
+    { !isMobileLayout && (
+      <div className='context-tabs'>
+        <ul>
+          {context.map((ctx) => (
+            <li key={ctx.id} className='context-tab'>
+              <button
+                className={`context-button ${selectedContext === ctx.id ? 'active' : ''}`}
+                onClick={() => setSelectedContext(ctx.id)}
+              >
+                {ctx.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) }
+
     <div className={`wrapper ${
       sidebarOpen ? 'sidebar-open' : '' } ${
         isMobileLayout ? 'phone' : 'desktop'
@@ -232,19 +276,29 @@ const TaskManager: React.FC = () => {
         <div className="columns">
           <aside className={`col left ${(selectedTask && isMobileLayout) ? 'hidden' : ''}`}>
             <div className="left-navigation-bar">
-              <li>
-                <button
-                  className="nav-sidebar"
+              <span className='icon-trigger'
                   onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
-                  onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}
-                  aria-expanded={sidebarOpen}
-                  aria-controls="sidebar"
-                  aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-                  type="button"
-                >
-                  Sidebar
-                </button>
-              </li>
+                  onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
+                <MenuIcon
+                  title=""
+                  ariaLabel="Toggle Sidebar"
+                />
+              </span>
+
+              { isMobileLayout && (
+                <div className='mobile-context-dropdown'>
+                    <select
+                      value={selectedContext}
+                      onChange={(e) => setSelectedContext(e.target.value)}
+                    >
+                      {context.map((ctx) => (
+                        <option key={ctx.id} value={ctx.id}>
+                          {ctx.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) }
             </div>
 
             <div className="left-header">
@@ -312,6 +366,7 @@ const TaskManager: React.FC = () => {
         {visibleFeedback && <div className="feedback">{visibleFeedback}</div>}
       </div>
     </div>
+  </div>
   );
 };
 
