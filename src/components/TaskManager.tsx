@@ -249,7 +249,7 @@ const TaskManager: React.FC = () => {
       </div>
     ) }
 
-    <div className={`wrapper ${
+    <div className={`task-manager-content ${
       sidebarOpen ? 'sidebar-open' : '' } ${
         isMobileLayout ? 'phone' : 'desktop'
       }`}
@@ -270,7 +270,7 @@ const TaskManager: React.FC = () => {
         onToggleSidebar={toggleSidebar}
       />
 
-      <div className={`task-manager ${
+      <div className={`task-manager-tasks ${
         !isMobileLayout ? 'two-column' : 'one-column'
       }`}>
         <div className="columns">
