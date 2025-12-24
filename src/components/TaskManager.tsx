@@ -276,14 +276,17 @@ const TaskManager: React.FC = () => {
         <div className="columns">
           <aside className={`col left ${(selectedTask && isMobileLayout) ? 'hidden' : ''}`}>
             <div className="left-navigation-bar">
-              <span className='icon-trigger'
-                  onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
-                  onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
-                <MenuIcon
-                  title=""
-                  ariaLabel="Toggle Sidebar"
-                />
+
+              { isMobileLayout && (
+                <span className='icon-trigger'
+                    onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
+                    onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
+                  <MenuIcon
+                    title=""
+                    ariaLabel="Toggle Sidebar"
+                  />
               </span>
+              ) }
 
               { isMobileLayout && (
                 <div className='mobile-context-dropdown'>

@@ -106,8 +106,10 @@ const Sidebar: React.FC<SidebarProps> = ({
     downloadAnchorNode.remove();
   }
 
+  const noTagsCount = getNoTagsCount();
+
   return (
-    <div className={`sidebar`} onClick={(e) => e.stopPropagation()}>
+    <div className="sidebar" onClick={(e) => e.stopPropagation()}>
 
       <div className="sidebar-header">
         <div className="search-block">
@@ -122,7 +124,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      <div className="sidebar-body">
+      <div className="sidebar-body thin-scrollbar">
         <ul className="box-list">
           <li
             className={`box-item ${selectedBox === 'inbox' && !selectedTag ? 'active' : ''}`}
@@ -146,6 +148,17 @@ const Sidebar: React.FC<SidebarProps> = ({
             {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
           </li>
 
+          {noTagsCount > 0 ?
+            <li
+              className={`box-item tag-missed ${selectedTag === 'no-tags' ? 'active' : ''}`}
+              onClick={() => { onTagSelect('no-tags'); onBoxSelect('inbox'); }}
+            >
+              <MinusIcon title="No tags" />
+              {getNoTagsCount() > 0 && <span className="badge">{getNoTagsCount()}</span>}
+            </li>
+          : null}
+
+
           {uniqueTags.length > 0 && <li className="tag-divider"></li>}
 
           {uniqueTags.map(tag => (
@@ -160,14 +173,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           ))}
 
           {uniqueTags.length > 0 && <li className="tag-divider"></li>}
-
-          <li
-            className={`box-item tag-missed ${selectedTag === 'no-tags' ? 'active' : ''}`}
-            onClick={() => { onTagSelect('no-tags'); onBoxSelect('inbox'); }}
-          >
-            <MinusIcon title="No tags" />
-            {getNoTagsCount() > 0 && <span className="badge">{getNoTagsCount()}</span>}
-          </li>
         </ul>
       </div>
       <div className='sidebar-divider'></div>
