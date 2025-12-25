@@ -194,7 +194,6 @@ input[type="checkbox"]:checked::after {
   flex-direction: column;
 }
 
-/* Root layout */
 .task-manager-content {
   display: flex;
   flex: 1;
@@ -205,10 +204,14 @@ input[type="checkbox"]:checked::after {
   box-sizing: border-box;
 }
 
+/* <SIDEBAR> */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+}
 .sidebar {
-  min-width: 200px;
-  max-width: 300px;
-  height: 90vh;
+  width: 200px;
   background: var(--color-surface);
   border-radius: 12px;
   box-shadow: 0 6px 18px var(--color-shadow-strong);
@@ -220,6 +223,34 @@ input[type="checkbox"]:checked::after {
   transition: transform 220ms ease, opacity 220ms ease;
   transform: translateX(0);
   opacity: 1;
+}
+.task-manager-content.sidebar-open .sidebar {
+  transform: translateX(0);
+  opacity: 1;
+}
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 12px;
+    top: 12px;
+    height: calc(100vh - 54px);
+    z-index: 60;
+    transform: translateX(-110%);
+    opacity: 0;
+    box-shadow: 0 20px 40px var(--color-ghost-shadow);
+  }
+
+  .task-manager-content.sidebar-open .sidebar {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+}
+
+@media (min-width: 769px) {
+  .nav-sidebar {
+    display: none !important;
+  }
 }
 
 .sidebar ul {
@@ -286,37 +317,11 @@ input[type="checkbox"]:checked::after {
   flex: auto;
 }
 
-@media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
+/* </Sidebar> */
 
-  .sidebar {
-    position: fixed;
-    left: 12px;
-    top: 12px;
-    height: calc(100vh - 24px);
-    z-index: 60;
-    transform: translateX(-110%);
-    opacity: 0;
-    box-shadow: 0 20px 40px var(--color-ghost-shadow);
-  }
 
-  .task-manager-content.sidebar-open .sidebar {
-    transform: translateX(0);
-    opacity: 1;
-  }
 
-  .task-manager-tasks.one-column .columns {
-    flex-direction: column;
-  }
-
-  .task-manager-content {
-    padding: 12px;
-  }
-}
-
-/* --------------------------- */
+/* TABS */
 
 .context-tabs {
   padding: 10px;
@@ -722,13 +727,16 @@ textarea {
   }
 }
 
-.task-manager-content.sidebar-open .sidebar {
-  transform: translateX(0);
-  opacity: 1;
-}
+@media (max-width: 768px) {
+  .task-manager-content {
+    padding: 12px;
+  }
 
-@media (max-width: 980px) {
   .task-manager-tasks.one-column .columns {
     flex-direction: column;
+  }
+
+  .task-manager-tasks.one-column {
+    height: auto;
   }
 }
