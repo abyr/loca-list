@@ -39,7 +39,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
 
   return (
     <section className="col right">
-      <div className="details">
+      <div className="details card">
         <div className="detail-row"><strong>Title:</strong> {selectedTask.title}</div>
         <div className="detail-row"><strong>Starred:</strong> {selectedTask.starred ? 'Yes' : 'No'}</div>
         <div className="detail-row"><strong>Priority:</strong> {selectedTask.priority || 'None'}</div>
@@ -67,10 +67,12 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               value={editDesc}
               onChange={(e) => onEditDescChange(e.target.value)}
             />
+
             {selectedTask.completed && (
               <label className="edit-checkbox-row">
                 <input
                   type="checkbox"
+                  aria-label="Change completed"
                   checked={editCompleted}
                   onChange={(e) => onEditCompletedChange(e.target.checked)}
                 />
@@ -79,6 +81,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
             )}
 
             <select className="edit-priority-select"
+                    aria-label="Select task priority"
                     value={editPriority}
                     onChange={(e) => { onEditPriorityChange(e.target.value as '' | 'low' | 'medium' | 'high'); }}
             >

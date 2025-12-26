@@ -230,7 +230,7 @@ const TaskManager: React.FC = () => {
   }];
 
   return (
-  <div className='task-manager-container'>
+  <div className='tm-container'>
 
     { !isMobileLayout && (
       <div className='context-tabs'>
@@ -249,7 +249,7 @@ const TaskManager: React.FC = () => {
       </div>
     ) }
 
-    <div className={`task-manager-content ${
+    <div className={`tm-content ${
       sidebarOpen ? 'sidebar-open' : '' } ${
         isMobileLayout ? 'phone' : 'desktop'
       }`}
@@ -270,7 +270,7 @@ const TaskManager: React.FC = () => {
         onToggleSidebar={toggleSidebar}
       />
 
-      <div className={`task-manager-tasks ${
+      <div className={`tm-tasks ${
         !isMobileLayout ? 'two-column' : 'one-column'
       }`}>
         <div className="columns">
@@ -293,6 +293,7 @@ const TaskManager: React.FC = () => {
                     <select
                       value={selectedContext}
                       onChange={(e) => setSelectedContext(e.target.value)}
+                      aria-label='Select context'
                     >
                       {context.map((ctx) => (
                         <option key={ctx.id} value={ctx.id}>

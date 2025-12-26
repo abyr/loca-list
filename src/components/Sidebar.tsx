@@ -9,7 +9,7 @@ import MinusIcon from './icons/MinusIcon';
 import SearchIcon from './icons/SearchIcon';
 import ExportIcon from './icons/ExportIcon';
 import ImportIcon from './icons/ImportIcon';
-import './TaskManager.css';
+import './Sidebar.css';
 
 interface SidebarProps {
   tasks: Task[];

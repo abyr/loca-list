@@ -60,6 +60,7 @@ const TaskList: React.FC<TaskListProps> = ({
 
               <input
                 type="checkbox"
+                aria-labelledby={`task-label-${task.id}`}
                 checked={task.completed}
                 onChange={(e) => {
                   e.stopPropagation();
@@ -67,7 +68,7 @@ const TaskList: React.FC<TaskListProps> = ({
                 }}
               />
 
-              <span className="task-title">{task.title}</span>
+              <span id={`task-label-${task.id}`} className="task-title">{task.title}</span>
               {task.description && <span className="task-desc">...</span>}
 
               <span className="task-actions">
