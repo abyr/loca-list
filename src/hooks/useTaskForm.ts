@@ -7,13 +7,15 @@ export const useTaskForm = (
     title: string;
     description: string;
     completed?: boolean;
-    priority?: '' | 'low' | 'medium' | 'high'
+    priority?: '' | 'low' | 'medium' | 'high';
+    context?: string
   }) => void
 ) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [completed, setCompleted] = useState(false);
   const [priority, setPriority] = useState<'' | 'low' | 'medium' | 'high'>('');
+  const [context, setContext] = useState('');
 
   useEffect(() => {
     if (initialTask) {
@@ -56,6 +58,8 @@ export const useTaskForm = (
     setCompleted,
     priority,
     setPriority,
+    context,
+    setContext,
     reset,
     onSubmit,
   };

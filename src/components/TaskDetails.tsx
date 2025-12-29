@@ -1,5 +1,6 @@
 import React from 'react';
 import { Task } from '../models/Task';
+import contexts from '../models/Contexts';
 import './TaskManager.css';
 
 interface TaskDetailsProps {
@@ -9,6 +10,7 @@ interface TaskDetailsProps {
   editDesc: string;
   editCompleted: boolean;
   editPriority: '' | 'low' | 'medium' | 'high';
+  editContext: string;
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -17,6 +19,7 @@ interface TaskDetailsProps {
   onEditCompletedChange: (completed: boolean) => void;
   onEditPriorityChange: (priority: '' | 'low' | 'medium' | 'high') => void;
   onSave: () => void;
+  onEditContextChange: (context: string) => void;
 }
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({
@@ -26,6 +29,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   editDesc,
   editCompleted,
   editPriority,
+  editContext,
   onClose,
   onEdit,
   onDelete,
@@ -33,6 +37,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   onEditDescChange,
   onEditCompletedChange,
   onEditPriorityChange,
+  onEditContextChange,
   onSave,
 }) => {
   if (!selectedTask) return null;
@@ -46,6 +51,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
         <div className="detail-row"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
         <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
         <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
+        <div className="detail-row"><strong>Context:</strong> {contexts.find(ctx => ctx.id === selectedTask.context)?.name || 'Anywhere'}</div>
 
         <div className="details-actions">
           <button onClick={onClose}>Close</button>
@@ -89,6 +95,20 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               <option value="low" selected={editPriority === 'low'}>Low Priority</option>
               <option value="medium" selected={editPriority === 'medium'}>Medium Priority</option>
               <option value="high" selected={editPriority === 'high'}>High Priority</option>
+            </select>
+
+            <select className="edit-context-select"
+                    aria-label="Select task context"
+                    value={editContext}
+                    onChange={(e) => { onEditContextChange(e.target.value); }}
+            >
+              {contexts.map((ctx) => (
+                <option key={ctx.id}
+                  value={ctx.id}
+                >
+                  {ctx.name}
+                </option>
+              ))}
             </select>
 
             <div className="edit-buttons">

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Task } from '../models/Task';
+import contexts from '../models/Contexts';
 import { useTaskDB } from '../hooks/useTaskDB';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { useTaskFilter } from '../hooks/useTaskFilter';
@@ -10,6 +11,7 @@ import TaskDetails from './TaskDetails';
 import CompletedTasksSection from './CompletedTasksSection';
 import AddTask from './AddTask';
 import MenuIcon from './icons/MenuIcon';
+import ContextTabs from './ContextTabs';
 import './TaskManager.css';
 
 const TaskManager: React.FC = () => {
@@ -66,6 +68,7 @@ const TaskManager: React.FC = () => {
       deleted: false,
       starred: false,
       priority: '',
+      context: selectedContext || 'anywhere',
     });
     resetAddTaskForm();
   });
@@ -91,6 +94,8 @@ const TaskManager: React.FC = () => {
     setCompleted: setEditCompleted,
     priority: editPriority,
     setPriority: setEditPriority,
+    context: editContext,
+    setContext: setEditContext,
     reset: resetEditForm,
     onSubmit: submitEdit,
   } = useTaskForm(selectedTask, async ({ title, description, completed }) => {
@@ -106,11 +111,18 @@ const TaskManager: React.FC = () => {
       deleted: original?.deleted ?? false,
       starred: original?.starred ?? false,
       priority: editPriority ?? original?.priority ?? '',
+      context: editContext || 'anywhere',
     });
     setEditingTaskId(null);
     setSelectedTask(null);
     resetEditForm();
   });
+
+  useEffect(() => {
+    if (selectedTask) {
+      setEditContext(selectedTask.context || 'anywhere');
+    }
+  }, [selectedTask, setEditContext]);
 
   const toggleCompleted = async (task: Task) => {
     setSelectedTask(null);
@@ -161,12 +173,14 @@ const TaskManager: React.FC = () => {
     }
   };
 
+  const filteredTasks = selectedContext === 'anywhere' ? tasks : tasks.filter(task => task.context === selectedContext);
+
   const {
     active: activeTasks,
     completed: completedTasks
-  } = useTaskFilter(tasks, searchTerm);
+  } = useTaskFilter(filteredTasks, searchTerm);
 
-  const starredTasks = tasks.filter(t => t.starred && !t.deleted);
+  const starredTasks = filteredTasks.filter(t => t.starred && !t.deleted);
 
   const filterTasksByTag = (taskList: Task[]) => {
     if (!selectedTag) return taskList;
@@ -206,96 +220,68 @@ const TaskManager: React.FC = () => {
     setSelectedBox(box);
   }
 
-  const context = [{
-    id: 'anywhere',
-    name: 'Anywhere',
-  }, {
-    id: 'work',
-    name: 'Work',
-  }, {
-    id: 'personal',
-    name: 'Personal',
-  }, {
-    id: 'home',
-    name: 'Home',
-  }, {
-    id: 'projects',
-    name: 'Projects',
-  }, {
-    id: 'waiting',
-    name: 'Waiting For',
-  }, {
-    id: 'maybe',
-    name: 'Someday/Maybe',
-  }];
+  const handleContextChange = (context: string) => {
+    closeDetails();
+    setSelectedContext(context);
+    loadTasks();
+  };
 
   return (
-  <div className='tm-container'>
+    <div className='tm-container'>
+      { !isMobileLayout && (
+        <ContextTabs
+          selectedContext={selectedContext}
+          setSelectedContext={handleContextChange}
+        />
+      ) }
 
-    { !isMobileLayout && (
-      <div className='context-tabs'>
-        <ul>
-          {context.map((ctx) => (
-            <li key={ctx.id} className='context-tab'>
-              <button
-                className={`context-button ${selectedContext === ctx.id ? 'active' : ''}`}
-                onClick={() => setSelectedContext(ctx.id)}
-              >
-                {ctx.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-    ) }
+      <div className={`tm-content ${
+        sidebarOpen ? 'sidebar-open' : '' } ${
+          isMobileLayout ? 'phone' : 'desktop'
+        }`}
+        onClick={() => setSidebarOpen(false)}
+      >
+        <Sidebar
+          tasks={filteredTasks}
+          activeTasks={activeTasks}
+          completedTasks={completedTasks}
+          starredTasks={starredTasks}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedBox={selectedBox}
+          onBoxSelect={onBoxSelect}
+          selectedTag={selectedTag}
+          onTagSelect={onTagSelect}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={toggleSidebar}
+        />
 
-    <div className={`tm-content ${
-      sidebarOpen ? 'sidebar-open' : '' } ${
-        isMobileLayout ? 'phone' : 'desktop'
-      }`}
-      onClick={() => setSidebarOpen(false)}
-    >
-      <Sidebar
-        tasks={tasks}
-        activeTasks={activeTasks}
-        completedTasks={completedTasks}
-        starredTasks={starredTasks}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        selectedBox={selectedBox}
-        onBoxSelect={onBoxSelect}
-        selectedTag={selectedTag}
-        onTagSelect={onTagSelect}
-        sidebarOpen={sidebarOpen}
-        onToggleSidebar={toggleSidebar}
-      />
+        <div className={`tm-tasks ${
+          !isMobileLayout ? 'two-column' : 'one-column'
+        }`}>
+          <div className="columns">
+            <aside className={`col left ${(selectedTask && isMobileLayout) ? 'hidden' : ''}`}>
+              <div className="left-navigation-bar">
 
-      <div className={`tm-tasks ${
-        !isMobileLayout ? 'two-column' : 'one-column'
-      }`}>
-        <div className="columns">
-          <aside className={`col left ${(selectedTask && isMobileLayout) ? 'hidden' : ''}`}>
-            <div className="left-navigation-bar">
+                { isMobileLayout && (
+                  <span className='icon-trigger'
+                      onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
+                      onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
+                    <MenuIcon
+                      title=""
+                      ariaLabel="Toggle Sidebar"
+                    />
+                </span>
+                ) }
 
-              { isMobileLayout && (
-                <span className='icon-trigger'
-                    onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
-                    onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
-                  <MenuIcon
-                    title=""
-                    ariaLabel="Toggle Sidebar"
-                  />
-              </span>
-              ) }
-
-              { isMobileLayout && (
-                <div className='mobile-context-dropdown'>
+                { isMobileLayout && (
+                  <div className='mobile-context-dropdown'>
                     <select
                       value={selectedContext}
-                      onChange={(e) => setSelectedContext(e.target.value)}
+                      onChange={(e) => handleContextChange(e.target.value)}
                       aria-label='Select context'
                     >
-                      {context.map((ctx) => (
+                      {contexts.map((ctx) => (
                         <option key={ctx.id} value={ctx.id}>
                           {ctx.name}
                         </option>
@@ -303,38 +289,17 @@ const TaskManager: React.FC = () => {
                     </select>
                   </div>
                 ) }
-            </div>
+              </div>
 
-            <div className="left-header">
-              <AddTask
-                title={newTitle}
-                setTitle={setNewTitle}
-                onSubmit={onSubmitNewTask}
-              />
-            </div>
-
-            {selectedBox === 'done' ? (
-              <CompletedTasksSection
-                displayedCompletedTasks={displayedCompletedTasks}
-                completedTasks={completedTasks}
-                selectedBox={selectedBox}
-                onTaskSelect={(task) => {
-                  setSelectedTask(task);
-                  setEditingTaskId(null);
-                }}
-                onDeleteAll={deleteAllCompleted}
-              />
-            ) : (
-              <>
-                <TaskList
-                  displayedActiveTasks={displayedActiveTasks}
-                  selectedTask={selectedTask}
-                  selectedBox={selectedBox}
-                  selectedTag={selectedTag}
-                  onTaskClick={onClickTask}
-                  onToggleCompleted={toggleCompleted}
-                  onToggleStarred={toggleStarred}
+              <div className="left-header">
+                <AddTask
+                  title={newTitle}
+                  setTitle={setNewTitle}
+                  onSubmit={onSubmitNewTask}
                 />
+              </div>
+
+              {selectedBox === 'done' ? (
                 <CompletedTasksSection
                   displayedCompletedTasks={displayedCompletedTasks}
                   completedTasks={completedTasks}
@@ -345,32 +310,55 @@ const TaskManager: React.FC = () => {
                   }}
                   onDeleteAll={deleteAllCompleted}
                 />
-              </>
-            )}
-          </aside>
+              ) : (
+                <>
+                  <TaskList
+                    displayedActiveTasks={displayedActiveTasks}
+                    selectedTask={selectedTask}
+                    selectedBox={selectedBox}
+                    selectedTag={selectedTag}
+                    onTaskClick={onClickTask}
+                    onToggleCompleted={toggleCompleted}
+                    onToggleStarred={toggleStarred}
+                  />
+                  <CompletedTasksSection
+                    displayedCompletedTasks={displayedCompletedTasks}
+                    completedTasks={completedTasks}
+                    selectedBox={selectedBox}
+                    onTaskSelect={(task) => {
+                      setSelectedTask(task);
+                      setEditingTaskId(null);
+                    }}
+                    onDeleteAll={deleteAllCompleted}
+                  />
+                </>
+              )}
+            </aside>
 
-          <TaskDetails
-            selectedTask={selectedTask}
-            editingTaskId={editingTaskId}
-            editTitle={editTitle}
-            editDesc={editDesc}
-            editCompleted={editCompleted}
-            editPriority={editPriority}
-            onClose={closeDetails}
-            onEdit={startEditFromDetails}
-            onDelete={onDeleteTask}
-            onEditTitleChange={setEditTitle}
-            onEditDescChange={setEditDesc}
-            onEditCompletedChange={setEditCompleted}
-            onEditPriorityChange={setEditPriority}
-            onSave={submitEdit}
-          />
+            <TaskDetails
+              selectedTask={selectedTask}
+              editingTaskId={editingTaskId}
+              editTitle={editTitle}
+              editDesc={editDesc}
+              editCompleted={editCompleted}
+              editPriority={editPriority}
+              editContext={editContext}
+              onClose={closeDetails}
+              onEdit={startEditFromDetails}
+              onDelete={onDeleteTask}
+              onEditTitleChange={setEditTitle}
+              onEditDescChange={setEditDesc}
+              onEditCompletedChange={setEditCompleted}
+              onEditPriorityChange={setEditPriority}
+              onEditContextChange={setEditContext}
+              onSave={submitEdit}
+            />
+          </div>
+
+          {visibleFeedback && <div className="feedback">{visibleFeedback}</div>}
         </div>
-
-        {visibleFeedback && <div className="feedback">{visibleFeedback}</div>}
       </div>
     </div>
-  </div>
   );
 };
 
