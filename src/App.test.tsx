@@ -1,15 +1,19 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import App from './App';
 
-test('renders loca list title', () => {
-  render(<App />);
+test('renders loca list title', async () => {
+  await act(async () => {
+    render(<App />);
+  });
 
-  const inboxElement = screen.getByText(/Inbox/i);
+  const contextElement = screen.getByText(/Anywhere/i);
+  const projectsElement = screen.getByText(/Projects/i);
   const starredElement = screen.getByText(/Starred/i);
   const doneElement = screen.getByText(/Done/i);
 
-  expect(inboxElement).toBeInTheDocument();
+  expect(contextElement).toBeInTheDocument();
+  expect(projectsElement).toBeInTheDocument();
   expect(starredElement).toBeInTheDocument();
   expect(doneElement).toBeInTheDocument();
 });

@@ -4,9 +4,10 @@ export class TaskDB {
     private dbName: string = 'LocaListDB';
     private storeName: string = 'Tasks';
     private db: IDBDatabase | null = null;
+    private ready: Promise<void>;
 
     constructor() {
-        this.init();
+        this.ready = this.init();
     }
 
     private async init() {
@@ -30,6 +31,7 @@ export class TaskDB {
     }
 
     public async addTask(task: Task): Promise<number> {
+        await this.ready;
         return new Promise<number>((resolve, reject) => {
             if (this.db) {
                 const transaction = this.db.transaction(this.storeName, 'readwrite');
@@ -50,6 +52,7 @@ export class TaskDB {
     }
 
     public async getAllTasks(): Promise<Task[]> {
+        await this.ready;
         return new Promise<Task[]>((resolve, reject) => {
             if (this.db) {
                 const transaction = this.db.transaction(this.storeName, 'readonly');
@@ -70,6 +73,7 @@ export class TaskDB {
     }
 
     public async updateTask(task: Task): Promise<void> {
+        await this.ready;
         return new Promise<void>((resolve, reject) => {
             if (this.db) {
                 const transaction = this.db.transaction(this.storeName, 'readwrite');
@@ -91,6 +95,7 @@ export class TaskDB {
     }
 
     public async deleteTask(id: number): Promise<void> {
+        await this.ready;
         return new Promise<void>((resolve, reject) => {
             if (this.db) {
                 const transaction = this.db.transaction(this.storeName, 'readwrite');
@@ -111,6 +116,7 @@ export class TaskDB {
     }
 
     public async deleteAllTasks(): Promise<void> {
+        await this.ready;
         return new Promise<void>((resolve, reject) => {
             if (this.db) {
                 const transaction = this.db.transaction(this.storeName, 'readwrite');

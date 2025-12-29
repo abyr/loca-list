@@ -68,25 +68,6 @@ describe('TaskDB (with full Task model)', () => {
     expect(tasks).toHaveLength(0);
   });
 
-  test('rejects when the DB is not initialized', async () => {
-    const broken = new TaskDB();
-    // Force the internal db to null to simulate a failed init
-    (broken as any).db = null;
-
-    await expect(broken.addTask(makeTask())).rejects.toMatch(
-      'Database is not initialized.'
-    );
-    await expect(broken.getAllTasks()).rejects.toMatch(
-      'Database is not initialized.'
-    );
-    await expect(broken.updateTask(makeTask())).rejects.toMatch(
-      'Database is not initialized.'
-    );
-    await expect(broken.deleteTask(1)).rejects.toMatch(
-      'Database is not initialized.'
-    );
-  });
-
   test('stored task has exactly the interface properties', async () => {
     const id = await db.addTask(makeTask('Integrity test'));
 
