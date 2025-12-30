@@ -2,6 +2,7 @@ import React from 'react';
 import { Task } from '../models/Task';
 import contexts from '../models/Contexts';
 import './TaskManager.css';
+import StarIcon from './icons/StarIcon';
 
 interface TaskDetailsProps {
   selectedTask: Task | null;
@@ -45,13 +46,16 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   return (
     <section className="col right">
       <div className="details card">
-        <div className="detail-row"><strong>Title:</strong> {selectedTask.title}</div>
-        <div className="detail-row"><strong>Starred:</strong> {selectedTask.starred ? 'Yes' : 'No'}</div>
+        <div className="detail-row">
+          {selectedTask.starred && <StarIcon ariaLabel="Starred Task" isFilled={true} />}
+
+          <strong>{selectedTask.title}</strong>
+        </div>
+        <div className="detail-row"><strong>Context:</strong> {contexts.find(ctx => ctx.id === selectedTask.context)?.name || 'Anywhere'}</div>
         <div className="detail-row"><strong>Priority:</strong> {selectedTask.priority || 'None'}</div>
-        <div className="detail-row"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
+        <div className="detail-row details-desc"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
         <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
         <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
-        <div className="detail-row"><strong>Context:</strong> {contexts.find(ctx => ctx.id === selectedTask.context)?.name || 'Anywhere'}</div>
 
         <div className="details-actions">
           <button onClick={onClose}>Close</button>

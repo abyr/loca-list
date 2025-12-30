@@ -1,5 +1,6 @@
 import React from 'react';
 import { Task } from '../models/Task';
+import contexts from '../models/Contexts';
 import './TaskManager.css';
 import FolderIcon from './icons/FolderIcon';
 import TagIcon from './icons/TagIcon';
@@ -12,6 +13,7 @@ interface TaskListProps {
   selectedTask: Task | null;
   selectedBox: 'inbox' | 'starred' | 'done' | null;
   selectedTag: string | null;
+  selectedContext: string | null;
   onTaskClick: (task: Task) => void;
   onToggleCompleted: (task: Task) => void;
   onToggleStarred: (task: Task) => void;
@@ -22,6 +24,7 @@ const TaskList: React.FC<TaskListProps> = ({
   selectedTask,
   selectedBox,
   selectedTag,
+  selectedContext,
   onTaskClick,
   onToggleCompleted,
   onToggleStarred,
@@ -34,11 +37,13 @@ const TaskList: React.FC<TaskListProps> = ({
         {selectedTag ?
           (selectedTag === 'no-tags') ?
             <MinusIcon title={'No tags'} /> :
-            <TagIcon title={selectedTag} /> :
-          (selectedBox === 'inbox') ?
-            <FolderIcon title="Inbox" /> :
-            (selectedBox === 'starred') ?
-              <StarIcon title="Starred" isFilled={true} /> :
+            (selectedTag === 'no-context') ?
+              <MinusIcon title={'No context'} /> :
+                <TagIcon title={selectedTag} /> :
+              (selectedBox === 'inbox') ?
+                <FolderIcon title="Inbox" /> :
+                (selectedBox === 'starred') ?
+                  <StarIcon title="Starred" isFilled={true} /> :
               ''
         }
       </h2>
@@ -72,6 +77,15 @@ const TaskList: React.FC<TaskListProps> = ({
               {task.description && <span className="task-desc">...</span>}
 
               <span className="task-actions">
+
+                {selectedContext === 'anywhere' && task.context && task.context !== 'anywhere' && (
+                  <span className="task-context">
+                    <span className="context-label badge weak"
+                      title={contexts.find(x => x.id === task.context)?.name}
+                    >{contexts.find(x => x.id === task.context)?.symbol}</span>
+                  </span>
+                )}
+
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

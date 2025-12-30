@@ -64,6 +64,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     return tasks.filter(task => !task.title.match(/#\w+/) && !task.deleted && !task.completed).length;
   };
 
+  const getNoContextCount = () => {
+    return tasks.filter(task => {
+      return (!task.context || task.context === 'anywhere') && !task.deleted && !task.completed;
+    }).length;
+  };
+
   const importTasks = () => {
     const input = document.createElement('input');
 
@@ -107,6 +113,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   }
 
   const noTagsCount = getNoTagsCount();
+  const noContextCount = getNoContextCount();
 
   return (
     <div className="sidebar" onClick={(e) => e.stopPropagation()}>
@@ -158,6 +165,15 @@ const Sidebar: React.FC<SidebarProps> = ({
             </li>
           : null}
 
+          {noContextCount > 0 ?
+            <li
+              className={`box-item context-missed ${selectedTag === 'no-context' ? 'active' : ''}`}
+              onClick={() => { onTagSelect('no-context'); onBoxSelect('inbox'); }}
+            >
+              <MinusIcon title="No context" />
+              {getNoContextCount() > 0 && <span className="badge">{getNoContextCount()}</span>}
+            </li>
+          : null}
 
           {uniqueTags.length > 0 && <li className="tag-divider"></li>}
 

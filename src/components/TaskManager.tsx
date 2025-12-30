@@ -17,7 +17,6 @@ import './TaskManager.css';
 const TaskManager: React.FC = () => {
   const {
     tasks,
-    feedback,
     loadTasks,
     addTask,
     updateTask,
@@ -27,7 +26,6 @@ const TaskManager: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [visibleFeedback, setVisibleFeedback] = useState<string | null>(null);
   const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | null>('inbox');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,16 +36,6 @@ const TaskManager: React.FC = () => {
   useEffect(() => {
     loadTasks();
   }, [loadTasks]);
-
-  useEffect(() => {
-    if (!feedback) {
-      setVisibleFeedback(null);
-      return;
-    }
-    setVisibleFeedback(feedback);
-    const t = setTimeout(() => setVisibleFeedback(null), 10 * 1000);
-    return () => clearTimeout(t);
-  }, [feedback]);
 
   const {
     title: newTitle,
@@ -74,7 +62,7 @@ const TaskManager: React.FC = () => {
   });
 
   const addSelectedTagToTitle = (title: string) => {
-    if (!selectedTag) {
+    if (!selectedTag || selectedTag === 'no-tags' || selectedTag === 'no-context') {
       return title;
     }
     const tag = '#' + selectedTag;
@@ -186,6 +174,10 @@ const TaskManager: React.FC = () => {
     if (!selectedTag) return taskList;
     if (selectedTag === 'no-tags') {
       return taskList.filter(task => !task.title.match(/#\w+/));
+    } else if (selectedTag === 'no-context') {
+      return taskList.filter(task => {
+        return (!task.context || task.context === 'anywhere');
+      });
     }
     return taskList.filter(task => task.title.includes(`#${selectedTag}`));
   };
@@ -223,6 +215,8 @@ const TaskManager: React.FC = () => {
   const handleContextChange = (context: string) => {
     closeDetails();
     setSelectedContext(context);
+    selectedTag && setSelectedTag(null);
+    selectedBox !== 'inbox' && setSelectedBox('inbox');
     loadTasks();
   };
 
@@ -317,6 +311,7 @@ const TaskManager: React.FC = () => {
                     selectedTask={selectedTask}
                     selectedBox={selectedBox}
                     selectedTag={selectedTag}
+                    selectedContext={selectedContext}
                     onTaskClick={onClickTask}
                     onToggleCompleted={toggleCompleted}
                     onToggleStarred={toggleStarred}
@@ -354,8 +349,6 @@ const TaskManager: React.FC = () => {
               onSave={submitEdit}
             />
           </div>
-
-          {visibleFeedback && <div className="feedback">{visibleFeedback}</div>}
         </div>
       </div>
     </div>

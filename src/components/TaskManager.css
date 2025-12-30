@@ -68,7 +68,7 @@ button {
   background: linear-gradient(180deg,var(--color-primary-1),var(--color-primary-2));
   color: white;
   border: none;
-  padding: 10px 14px;
+  padding: 6px 8px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 600;
@@ -114,7 +114,7 @@ input[type="checkbox"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  padding: 10px 12px;
+  padding: 8px 8px;
   width: 16px;
   height: 16px;
   border: 1px solid var(--color-border);
@@ -135,6 +135,7 @@ input[type="checkbox"]:checked {
   background: var(--color-primary-1);
   border-color: var(--color-primary-1);
   position: relative;
+  padding: 10px 12px;
 }
 
 input[type="checkbox"]:checked::after {
@@ -402,7 +403,7 @@ input[type="checkbox"]:checked::after {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 6px 8px;
   border-radius: 10px;
   cursor: pointer;
   transition: background .12s, transform .08s;
@@ -510,11 +511,24 @@ input[type="checkbox"]:checked::after {
 detail-row {
   margin-bottom: 8px;
   color: var(--color-heading);
+  gap: 8px;
 }
 
 .detail-row strong {
   color: var(--color-heading);
   margin-right: 6px;
+}
+
+.detail-row.details-desc {
+  overflow: scroll;
+  max-height: 50vh;
+}
+
+.detail-row .icon-box {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 8px;
+  margin-left: 0;
 }
 
 .details-actions {
@@ -541,12 +555,19 @@ textarea {
 
 .task-actions {
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
 }
 
 .task-actions button {
   background: var(--color-primary-bg);
   border: none;
   cursor: pointer;
+}
+
+.task-context {
+  flex: 1;
+  margin-right: 8px;
 }
 
 .edit-checkbox-row {
@@ -595,18 +616,12 @@ textarea {
   font-size: 0.75rem;
   flex-shrink: 0;
 }
-
-/* --------------------------- */
-
-.feedback {
-  background: var(--color-muted-bg);
-  color: var(--color-warning-text);
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--color-border-weak);
-  max-width: 720px;
-  box-shadow: 0 2px 6px var(--color-shadow-light);
+.badge.weak {
+  background: var(--color-primary-weak);
+  color: var(--color-primary-2);
 }
+
+
 
 /* --------------------------- */
 
