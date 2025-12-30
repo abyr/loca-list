@@ -284,9 +284,8 @@ input[type="checkbox"]:checked::after {
 }
 
 .col {
-  /* background: var(--color-surface); */
   border-radius: 12px;
-  padding: 14px;
+  padding: 0 8px;
   box-shadow: 0 6px 18px var(--color-shadow-medium);
   overflow: hidden;
   display: flex;
