@@ -1,8 +1,6 @@
 import { useState, useCallback } from 'react';
-import { LocaListDB } from '../db/LocaListDB';
+import settingsDAO from '../db/SettingsDAO';
 import { Setting } from '../models/Setting';
-
-const locaListDB = new LocaListDB();
 
 export const useSettingsDB = () => {
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -13,7 +11,7 @@ export const useSettingsDB = () => {
     setLoading(true);
     setError(null);
     try {
-      const allSettings = await locaListDB.getAllSettings();
+      const allSettings = await settingsDAO.getAllSettings();
       setSettings(allSettings);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load settings');
@@ -26,7 +24,7 @@ export const useSettingsDB = () => {
     setLoading(true);
     setError(null);
     try {
-      await locaListDB.saveSetting(setting);
+      await settingsDAO.saveSetting(setting);
       await loadSettings();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save setting');

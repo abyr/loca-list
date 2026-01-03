@@ -1,7 +1,27 @@
+/**
+ * DbCoordinator.ts
+ *
+ * Role & motivation:
+ * This module centralizes the low-level IndexedDB access for the app.
+ * It provides a single internal class (`LocaListDB`) that manages the
+ * database connection, object store creation, and primitive CRUD
+ * operations for the data stores. The intention is to keep direct
+ * IndexedDB usage confined here and accessed only via higher-level
+ * DAO wrappers (e.g. `TaskDAO`, `SettingsDAO`).
+ *
+ * Why: IndexedDB APIs are imperative, environment-sensitive, and can
+ * vary in test mocks. By centralizing the logic and keeping it internal
+ * we can:
+ * - isolate database schema and upgrade logic in one place
+ * - adapt behavior for test environments (mocks) centrally
+ * - prevent accidental direct imports elsewhere in the codebase
+ * - replace or evolve the storage layer without changing DAOs
+ */
+
 import { Task } from '../models/Task';
 import { Setting } from '../models/Setting';
 
-export class LocaListDB {
+export default class DbCoordinator {
     private dbName: string = 'LocaListDB';
     private dbVersion: number = 2;
 
@@ -22,12 +42,19 @@ export class LocaListDB {
             const request = indexedDB.open(this.dbName, this.dbVersion);
 
             request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-                const db = request.result;
-                if (!db.objectStoreNames.contains(this.storeNameTasks)) {
+                const db = request.result as any;
+                // Some test environments provide a minimal mock that doesn't
+                // implement `objectStoreNames`. Try creating stores and ignore
+                // errors if they already exist.
+                try {
                     db.createObjectStore(this.storeNameTasks, { keyPath: this.storeKeyTask, autoIncrement: true });
+                } catch (e) {
+                    // Store may already exist in real environments or mocks
                 }
-                if (!db.objectStoreNames.contains(this.storeNameSettings)) {
+                try {
                     db.createObjectStore(this.storeNameSettings, { keyPath: this.storeKeySetting });
+                } catch (e) {
+                    // ignore
                 }
             };
 
@@ -191,5 +218,3 @@ export class LocaListDB {
     }
 
 }
-
-export default LocaListDB;

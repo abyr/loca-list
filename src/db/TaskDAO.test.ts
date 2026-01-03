@@ -1,4 +1,4 @@
-import { LocaListDB } from './LocaListDB';
+import taskDAO from './TaskDAO';
 import { Task } from '../models/Task';
 
 const expectedKeys = [
@@ -13,7 +13,7 @@ const expectedKeys = [
     ];
 
 describe('TaskDB (with full Task model)', () => {
-  let db: LocaListDB;
+  const db = taskDAO;
 
   const makeTask = (title = 'Sample task'): Task => ({
     title,
@@ -26,19 +26,20 @@ describe('TaskDB (with full Task model)', () => {
   });
 
   beforeEach(async () => {
-    db = new LocaListDB();
-    await await new Promise(res => setTimeout(res, 100));
+    // clear existing tasks to ensure test isolation
+    const all = await db.getAllTasks();
+    await Promise.all(all.map(t => (t.id ? db.deleteTask(t.id) : Promise.resolve())));
   });
 
   test('adds a task and returns its generated id', async () => {
-    const id = await db.addTask(makeTask('Add test'));
+    const id = await db.createTask(makeTask('Add test'));
     expect(typeof id).toBe('number');
     expect(id).toBeGreaterThan(0);
   });
 
   test('retrieves all tasks after several inserts', async () => {
-    await db.addTask(makeTask('First'));
-    await db.addTask(makeTask('Second'));
+    await db.createTask(makeTask('First'));
+    await db.createTask(makeTask('Second'));
 
     const tasks = await db.getAllTasks();
     expect(tasks).toHaveLength(2);
@@ -47,7 +48,7 @@ describe('TaskDB (with full Task model)', () => {
   });
 
   test('updates a task and persists the change', async () => {
-    await db.addTask(makeTask('To be updated'));
+    await db.createTask(makeTask('To be updated'));
 
     const [stored] = await db.getAllTasks();
     const updated: Task = { ...stored, completed: true };
@@ -61,7 +62,7 @@ describe('TaskDB (with full Task model)', () => {
   });
 
   test('deletes a task and removes it from the store', async () => {
-    const id = await db.addTask(makeTask('Will be deleted'));
+    const id = await db.createTask(makeTask('Will be deleted'));
     await db.deleteTask(id);
 
     const tasks = await db.getAllTasks();
@@ -69,7 +70,7 @@ describe('TaskDB (with full Task model)', () => {
   });
 
   test('stored task has exactly the interface properties', async () => {
-    const id = await db.addTask(makeTask('Integrity test'));
+    const id = await db.createTask(makeTask('Integrity test'));
 
     const tasks = await db.getAllTasks();
     const stored = tasks.find(t => t.id === id);
