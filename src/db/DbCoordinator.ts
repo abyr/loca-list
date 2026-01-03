@@ -3,7 +3,7 @@
  *
  * Role & motivation:
  * This module centralizes the low-level IndexedDB access for the app.
- * It provides a single internal class (`LocaListDB`) that manages the
+ * It provides a single internal class (`DbCoordinator`) that manages the
  * database connection, object store creation, and primitive CRUD
  * operations for the data stores. The intention is to keep direct
  * IndexedDB usage confined here and accessed only via higher-level
