@@ -65,8 +65,8 @@ li {
 }
 
 button {
-  background: linear-gradient(180deg,var(--color-primary-1),var(--color-primary-2));
-  color: white;
+  background: var(--color-primary-bg);
+  color: var(--color-text);
   border: none;
   padding: 6px 8px;
   border-radius: 10px;
@@ -78,6 +78,12 @@ button {
 button.danger {
   background: linear-gradient(180deg,var(--color-danger-1),var(--color-danger-2));
   box-shadow: 0 6px 14px var(--color-shadow-danger);
+  color: var(--color-rev-text);
+}
+button.accent {
+  background: linear-gradient(180deg,var(--color-primary-1),var(--color-primary-2));
+  box-shadow: 0 6px 14px var(--color-shadow-danger);
+  color: white;
 }
 
 button.danger.flex-end {
@@ -601,6 +607,10 @@ textarea {
   flex: 0 0 auto;
 }
 
+.danger .icon-box svg {
+  color: var(--color-rev-text);
+}
+
 .icon-trigger {
   cursor: pointer;
 }
@@ -620,7 +630,30 @@ textarea {
   color: var(--color-primary-2);
 }
 
+/* --------------------------- */
 
+.popup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+.popup-content {
+  background: var(--color-surface);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px var(--color-shadow-strong);
+  padding: 16px;
+  min-width: 280px;
+  max-width: 90vw;
+}
 
 /* --------------------------- */
 

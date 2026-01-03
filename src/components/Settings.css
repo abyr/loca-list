@@ -1,0 +1,31 @@
+.settings-list {
+    margin: 16px 0;
+}
+.setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.setting-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.setting-box .setting-name {
+    flex: 0 0 auto;
+}
+
+.setting-box .setting-title {
+    font-size: 1em;
+    margin-left: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.95rem;
+    min-width: 0;
+}

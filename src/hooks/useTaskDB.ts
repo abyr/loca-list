@@ -1,15 +1,15 @@
 import { useState, useCallback } from 'react';
-import { TaskDB } from '../db/TaskDB';
+import { LocaListDB } from '../db/LocaListDB';
 import { Task } from '../models/Task';
 
-const taskDB = new TaskDB();
+const locaListDB = new LocaListDB();
 
 export const useTaskDB = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const loadTasks = useCallback(async () => {
     try {
-      const loaded = await taskDB.getAllTasks();
+      const loaded = await locaListDB.getAllTasks();
       setTasks(loaded);
     } catch (e) {
       console.error(e);
@@ -19,7 +19,7 @@ export const useTaskDB = () => {
   const addTask = useCallback(
     async (task: Omit<Task, 'id'>) => {
       try {
-        await taskDB.addTask(task);
+        await locaListDB.addTask(task);
         await loadTasks();
       } catch (e) {
         console.error(e);
@@ -31,7 +31,7 @@ export const useTaskDB = () => {
   const updateTask = useCallback(
     async (task: Task) => {
       try {
-        await taskDB.updateTask(task);
+        await locaListDB.updateTask(task);
         await loadTasks();
       } catch (e) {
         console.error(e);
@@ -43,7 +43,7 @@ export const useTaskDB = () => {
   const deleteTask = useCallback(
     async (taskId: number) => {
       try {
-        await taskDB.deleteTask(taskId);
+        await locaListDB.deleteTask(taskId);
         await loadTasks();
       } catch (e) {
         console.error(e);
@@ -55,7 +55,7 @@ export const useTaskDB = () => {
   const deleteAllTasks = useCallback(
     async () => {
       try {
-        await taskDB.deleteAllTasks();
+        await locaListDB.deleteAllTasks();
         await loadTasks();
       } catch (e) {
         console.error(e);

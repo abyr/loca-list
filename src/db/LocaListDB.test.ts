@@ -1,4 +1,4 @@
-import { TaskDB } from './TaskDB';
+import { LocaListDB } from './LocaListDB';
 import { Task } from '../models/Task';
 
 const expectedKeys = [
@@ -13,7 +13,7 @@ const expectedKeys = [
     ];
 
 describe('TaskDB (with full Task model)', () => {
-  let db: TaskDB;
+  let db: LocaListDB;
 
   const makeTask = (title = 'Sample task'): Task => ({
     title,
@@ -26,7 +26,7 @@ describe('TaskDB (with full Task model)', () => {
   });
 
   beforeEach(async () => {
-    db = new TaskDB();
+    db = new LocaListDB();
     await await new Promise(res => setTimeout(res, 100));
   });
 

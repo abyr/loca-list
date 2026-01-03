@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Task } from '../models/Task';
 import { useTaskDB } from '../hooks/useTaskDB';
+import { useSettingsDB } from '../hooks/useSettingsDB';
+import SettingsPopup from './SettingsPopup';
 import FolderIcon from './icons/FolderIcon';
 import TagIcon from './icons/TagIcon';
 import StarIcon from './icons/StarIcon';
@@ -9,7 +11,9 @@ import MinusIcon from './icons/MinusIcon';
 import SearchIcon from './icons/SearchIcon';
 import ExportIcon from './icons/ExportIcon';
 import ImportIcon from './icons/ImportIcon';
+import SettingsIcon from './icons/SettingsIcon';
 import './Sidebar.css';
+import { Setting } from '../models/Setting';
 
 interface SidebarProps {
   tasks: Task[];
@@ -46,9 +50,19 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const {
+    settings,
+    loadSettings,
+    saveSetting
+  } = useSettingsDB();
+
+  const {
       addTask,
       deleteAllTasks,
     } = useTaskDB();
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const allTags = new Set<string>();
   tasks.forEach(task => {
@@ -69,6 +83,47 @@ const Sidebar: React.FC<SidebarProps> = ({
       return (!task.context || task.context === 'anywhere') && !task.deleted && !task.completed;
     }).length;
   };
+
+  const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
+
+  const openSettingsDialogHandler = async () => {
+    setOpenSettingsDialog(true);
+  }
+
+  const closeSettingsDialogHandler = async () => {
+    setOpenSettingsDialog(false);
+  }
+
+  const updateSettingsDialogHandler = async () => {
+
+    console.log('settings', settings);
+
+    const themeSetting = {
+      key: 'theme',
+      value: 'light',
+      title: 'Theme',
+      type: 'select',
+      options: ['light', 'default', 'dark'],
+    } as Setting;
+
+    const lastContextSetting = {
+      key: 'lastUsedContext',
+      value: 'anywhere',
+      title: 'Last Used Context',
+      type: 'string',
+    } as Setting;
+
+    const showContextIconsSetting = {
+      key: 'showContextIcons',
+      value: true,
+      title: 'Show Context Icons',
+      type: 'toggle',
+    } as Setting;
+
+    await saveSetting(showContextIconsSetting);
+
+    setOpenSettingsDialog(false);
+  }
 
   const importTasks = () => {
     const input = document.createElement('input');
@@ -193,7 +248,16 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
       <div className='sidebar-divider'></div>
         <div className='sidebar-actions'>
-            <button onClick={() => {
+
+            <button onClick={openSettingsDialogHandler}>
+              <SettingsIcon title='Settings' />
+            </button>
+
+            <button onClick={() => { exportTasks(tasks); }} >
+              <ExportIcon title='Export tasks' />
+            </button>
+
+            <button className="danger" onClick={() => {
               const confirmed = window.confirm('Importing tasks will DELETE ALL your current tasks. Continue?')
 
               if (confirmed) {
@@ -202,12 +266,18 @@ const Sidebar: React.FC<SidebarProps> = ({
             }}>
               <ImportIcon title='Import tasks' />
             </button>
-
-            <button onClick={() => { exportTasks(tasks); }} >
-              <ExportIcon title='Export tasks' />
-            </button>
         </div>
-      </div>
+
+        {openSettingsDialog &&
+          <SettingsPopup
+            settings={settings}
+            isOpen={openSettingsDialog}
+            onClose={ closeSettingsDialogHandler }
+            onSave={ updateSettingsDialogHandler }
+          />
+        }
+    </div>
+
   );
 };
 
