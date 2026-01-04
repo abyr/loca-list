@@ -148,6 +148,7 @@ textarea {
   background: var(--color-bg);
   font-size: 14px;
   resize: vertical;
+  color: var(--color-text);
 }
 
 input {

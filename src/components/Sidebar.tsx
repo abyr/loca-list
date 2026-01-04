@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Task } from '../models/Task';
 import { useTaskDB } from '../hooks/useTaskDB';
-import { useSettingsDB } from '../hooks/useSettingsDB';
 import SettingsPopup from './SettingsPopup';
 import FolderIcon from './icons/FolderIcon';
 import TagIcon from './icons/TagIcon';
@@ -13,7 +12,6 @@ import ExportIcon from './icons/ExportIcon';
 import ImportIcon from './icons/ImportIcon';
 import SettingsIcon from './icons/SettingsIcon';
 import './Sidebar.css';
-import { Setting } from '../models/Setting';
 
 interface SidebarProps {
   tasks: Task[];
@@ -50,19 +48,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const {
-    settings,
-    loadSettings,
-    saveSetting
-  } = useSettingsDB();
-
-  const {
       addTask,
       deleteAllTasks,
     } = useTaskDB();
-
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
 
   const allTags = new Set<string>();
   tasks.forEach(task => {
@@ -95,33 +83,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   }
 
   const updateSettingsDialogHandler = async () => {
-
-    console.log('settings', settings);
-
-    const themeSetting = {
-      key: 'theme',
-      value: 'light',
-      title: 'Theme',
-      type: 'select',
-      options: ['light', 'default', 'dark'],
-    } as Setting;
-
-    const lastContextSetting = {
-      key: 'lastUsedContext',
-      value: 'anywhere',
-      title: 'Last Used Context',
-      type: 'string',
-    } as Setting;
-
-    const showContextIconsSetting = {
-      key: 'showContextIcons',
-      value: true,
-      title: 'Show Context Icons',
-      type: 'toggle',
-    } as Setting;
-
-    await saveSetting(showContextIconsSetting);
-
     setOpenSettingsDialog(false);
   }
 
@@ -270,7 +231,6 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         {openSettingsDialog &&
           <SettingsPopup
-            settings={settings}
             isOpen={openSettingsDialog}
             onClose={ closeSettingsDialogHandler }
             onSave={ updateSettingsDialogHandler }
