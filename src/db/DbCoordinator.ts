@@ -20,15 +20,18 @@
 
 import { Task } from '../models/Task';
 import { Setting } from '../models/Setting';
+import { TaskTimeEntry } from '../models/TaskTimeEntry';
 
 export default class DbCoordinator {
     private dbName: string = 'LocaListDB';
-    private dbVersion: number = 2;
+    private dbVersion: number = 3;
 
     private storeNameTasks: string = 'Tasks';
     private storeKeyTask: string = 'id';
     private storeNameSettings: string = 'Settings';
     private storeKeySetting: string = 'key';
+    private storeNameTaskTimeEntries: string = 'TaskTimeEntries';
+    private storeKeyTaskTimeEntries: string = 'id';
 
     private db: IDBDatabase | null = null;
     private ready: Promise<void>;
@@ -43,18 +46,24 @@ export default class DbCoordinator {
 
             request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
                 const db = request.result as any;
-                // Some test environments provide a minimal mock that doesn't
-                // implement `objectStoreNames`. Try creating stores and ignore
-                // errors if they already exist.
+
+                // Some test environments provide a minimal mock that doesn't implement `objectStoreNames`
+
                 try {
                     db.createObjectStore(this.storeNameTasks, { keyPath: this.storeKeyTask, autoIncrement: true });
                 } catch (e) {
-                    // Store may already exist in real environments or mocks
+                    // already exists
                 }
                 try {
                     db.createObjectStore(this.storeNameSettings, { keyPath: this.storeKeySetting });
                 } catch (e) {
-                    // ignore
+                    // already exists
+                }
+
+                try {
+                    db.createObjectStore(this.storeNameTaskTimeEntries, { keyPath: this.storeKeyTaskTimeEntries, autoIncrement: true });
+                } catch (e) {
+                    // already exists
                 }
             };
 
@@ -216,5 +225,90 @@ export default class DbCoordinator {
             }
         });
     }
+
+    public async getAllTimeEntries(): Promise<TaskTimeEntry[]> {
+        await this.ready;
+        return new Promise<TaskTimeEntry[]>((resolve, reject) => {
+            if (this.db) {
+                const transaction = this.db.transaction('TaskTimeEntries', 'readonly');
+                const store = transaction.objectStore('TaskTimeEntries');
+                const request = store.getAll();
+
+                request.onsuccess = () => {
+                    resolve(request.result as TaskTimeEntry[]);
+                };
+
+                request.onerror = () => {
+                    reject('Get Time Entries error: ' + request.error);
+                };
+            } else {
+                reject('Database is not initialized.');
+            }
+        });
+    }
+
+    public async addTimeEntry(timeEntry: TaskTimeEntry): Promise<number> {
+        await this.ready;
+        return new Promise<number>((resolve, reject) => {
+            if (this.db) {
+                const transaction = this.db.transaction('TaskTimeEntries', 'readwrite');
+                const store = transaction.objectStore('TaskTimeEntries');
+                const request = store.add({ ...timeEntry });
+
+                request.onsuccess = () => {
+                    resolve(request.result as number);
+                };
+
+                request.onerror = () => {
+                    reject('Add Time Entry error: ' + request.error);
+                };
+            } else {
+                reject('Database is not initialized.');
+            }
+        });
+    }
+
+    public async updateTimeEntry(timeEntry: TaskTimeEntry): Promise<void> {
+        await this.ready;
+        return new Promise<void>((resolve, reject) => {
+            if (this.db) {
+                const transaction = this.db.transaction('TaskTimeEntries', 'readwrite');
+                const store = transaction.objectStore('TaskTimeEntries');
+                const request = store.put(timeEntry);
+
+                request.onsuccess = () => {
+                    resolve();
+                };
+
+                request.onerror = () => {
+                    reject('Update Time Entry error: ' + request.error);
+                };
+            } else {
+                reject('Database is not initialized.');
+            }
+        });
+    }
+
+    public async deleteTimeEntry(id: number): Promise<void> {
+        await this.ready;
+        return new Promise<void>((resolve, reject) => {
+            if (this.db) {
+                const transaction = this.db.transaction('TaskTimeEntries', 'readwrite');
+                const store = transaction.objectStore('TaskTimeEntries');
+                const request = store.delete(id);
+
+                request.onsuccess = () => {
+                    resolve();
+                };
+
+                request.onerror = () => {
+                    reject('Delete Time Entry error: ' + request.error);
+                };
+            } else {
+                reject('Database is not initialized.');
+            }
+        });
+    }
+
 
 }
