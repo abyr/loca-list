@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task } from '../models/Task';
 import contexts from '../models/Contexts';
+import TimeEntriesList from './TimeEntriesList';
+import { useTaskTimeEntriesDB } from '../hooks/useTaskTimeEntriesDB';
 import './TaskManager.css';
 import StarIcon from './icons/StarIcon';
+import PlayIcon from './icons/PlayIcon';
+import PauseIcon from './icons/PauseIcon';
 
 interface TaskDetailsProps {
   selectedTask: Task | null;
@@ -41,7 +45,50 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   onEditContextChange,
   onSave,
 }) => {
+
+  const [isDescriptionOpen, setDescriptionOpen] = useState(true);
+
+  const {
+      timeEntries,
+      loadTimeEntries,
+      startTask,
+      pauseTask,
+      isTaskStarted
+    } = useTaskTimeEntriesDB();
+
+  useEffect(() => {
+          loadTimeEntries();
+      }, [loadTimeEntries]);
+
   if (!selectedTask) return null;
+
+  const filteredEntries = (selectedTask.id
+        ? timeEntries.filter(entry => entry.taskId === selectedTask.id)
+        : timeEntries
+    ).sort((a, b) => b.started - a.started);
+
+    console.log('filteredEntries', filteredEntries);
+
+  let started = !!filteredEntries.find(x => !x.stopped);
+
+  console.log('Current started', started);
+
+  const toggleStarted = async (task: Task) => {
+    if (!task || !task.id) {
+      return;
+    }
+
+    const isStarted = await isTaskStarted(task.id);
+
+    if (isStarted)  {
+      console.log('pause');
+      await pauseTask(task.id);
+
+    } else {
+      console.log('start');
+      await startTask(task.id);
+    }
+  };
 
   return (
     <section className="col right">
@@ -53,7 +100,19 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
         </div>
         <div className="detail-row"><strong>Context:</strong> {contexts.find(ctx => ctx.id === selectedTask.context)?.name || 'Anywhere'}</div>
         <div className="detail-row"><strong>Priority:</strong> {selectedTask.priority || 'None'}</div>
-        <div className="detail-row details-desc"><strong>Description:</strong> {selectedTask.description || <em>No description</em>}</div>
+
+        <div className="detail-row details-desc">
+          <strong>Description:</strong>
+          <button onClick={() => setDescriptionOpen(!isDescriptionOpen)}>
+            {isDescriptionOpen ? 'Hide' : 'Show'}
+          </button>
+          {isDescriptionOpen && (
+            <div>
+              {selectedTask.description || <em>No description</em>}
+            </div>
+          )}
+        </div>
+
         <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
         <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
 
@@ -62,6 +121,36 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
           <button onClick={onEdit}>Edit</button>
           <button className="danger" onClick={onDelete}>Delete</button>
         </div>
+
+        <div className="details-actions">
+          { started &&
+            <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleStarted(selectedTask);
+                }}
+                aria-label='Pause task'
+              >
+                <PauseIcon ariaLabel='Pause task' size={16} ></PauseIcon>
+              </button>
+          }
+
+          { !started &&
+              <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleStarted(selectedTask);
+              }}
+              aria-label='Start task'
+            >
+              <PlayIcon ariaLabel='Start task' size={16} ></PlayIcon>
+            </button>
+          }
+
+        </div>
+
+        <TimeEntriesList taskId={selectedTask.id} />
+
 
         {editingTaskId !== null && (
           <div className="edit-form">
@@ -96,9 +185,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                     onChange={(e) => { onEditPriorityChange(e.target.value as '' | 'low' | 'medium' | 'high'); }}
             >
               <option value="">No Priority</option>
-              <option value="low" selected={editPriority === 'low'}>Low Priority</option>
-              <option value="medium" selected={editPriority === 'medium'}>Medium Priority</option>
-              <option value="high" selected={editPriority === 'high'}>High Priority</option>
+              <option value="low">Low Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="high">High Priority</option>
             </select>
 
             <select className="edit-context-select"

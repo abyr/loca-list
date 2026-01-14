@@ -47,12 +47,12 @@ const TaskList: React.FC<TaskListProps> = ({
               ''
         }
       </h2>
-      <ul className="task-list card">
+      <ul className="task-list box-list card">
         {tasks.length === 0 && <li className="empty">No active tasks</li>}
         {tasks.map((task) => (
           <li
             key={task.id}
-            className={`task-item ${selectedTask?.id === task.id ? 'selected' : ''}`}
+            className={`box-list-item task-item ${selectedTask?.id === task.id ? 'selected' : ''}`}
             onClick={() => onTaskClick(task)}
           >
             <div className="task-main">
@@ -99,6 +99,7 @@ const TaskList: React.FC<TaskListProps> = ({
                     size={16}
                   />
                 </button>
+
               </span>
             </div>
           </li>
