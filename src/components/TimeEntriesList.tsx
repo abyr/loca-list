@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTaskTimeEntriesDB } from '../hooks/useTaskTimeEntriesDB';
 import { TaskTimeEntry } from '../models/TaskTimeEntry';
 import DeleteIcon from './icons/DeleteIcon';
 
 interface TimeEntriesListProps {
-    taskId?: number; // Optional taskId parameter
+    taskId?: number;
 }
 
 const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId }) => {
     const { timeEntries, loadTimeEntries, deleteTimeEntry } = useTaskTimeEntriesDB();
+    const [isListOpen, setIsListOpen] = useState(false);
 
     useEffect(() => {
         loadTimeEntries();
@@ -77,33 +78,38 @@ const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId }) => {
     };
 
     return (
-        <div className='time-entries-container card'>
+        <div className='time-entries-container'>
             <div>
                 <strong>Spent Time</strong>
+                <button onClick={() => setIsListOpen(!isListOpen)}>
+                    {isListOpen ? 'Hide' : 'Show'}
+                </button>
             </div>
-            <ul className='box-list time-entry-list'>
-                {filteredEntries.map((entry: TaskTimeEntry) => (
-                    <li key={entry.id} className='box-list-item'>
-                        {!taskId && (<span>[{entry.taskId}]</span>)}
+            {isListOpen && (
+                <ul className='box-list time-entry-list'>
+                    {filteredEntries.map((entry: TaskTimeEntry) => (
+                        <li key={entry.id} className='box-list-item'>
+                            {!taskId && (<span>[{entry.taskId}]</span>)}
 
-                        {entry.stopped && (
-                            <div className='time-entry-text'>
-                                <span>{formatISODate(entry.started)} : <strong>{getTimeSpent(entry)}</strong> </span>
+                            {entry.stopped && (
+                                <div className='time-entry-text'>
+                                    <span>{formatISODate(entry.started)} : <strong>{getTimeSpent(entry)}</strong> </span>
 
-                                <button onClick={() => handleDelete(entry.id)} aria-label="Delete time entry"
-                                        className="danger">
-                                    <DeleteIcon size={16} />
-                                </button>
-                            </div>
-                        )}
+                                    <button onClick={() => handleDelete(entry.id)} aria-label="Delete time entry"
+                                            className="danger">
+                                        <DeleteIcon size={16} />
+                                    </button>
+                                </div>
+                            )}
 
-                        {!entry.stopped && (
-                            <span>{formatLongDate(entry.started)} - Ongoing</span>
-                        )}
+                            {!entry.stopped && (
+                                <span>{formatLongDate(entry.started)} - Ongoing</span>
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            )}
 
-                    </li>
-                ))}
-            </ul>
             <div>
                 <span>Total: </span> <strong>{getSummaryTimeSpent()} </strong>
             </div>

@@ -391,7 +391,7 @@ input[type="checkbox"]:checked::after {
 .box-actions {
   display: flex;
   justify-content: flex-end;
-  margin: 8px 0;
+  gap: 8px;
 }
 
 .add-task-block {
@@ -443,6 +443,11 @@ input[type="checkbox"]:checked::after {
   overflow-y: auto;
 }
 
+.box-list.box-list-row {
+  flex-direction: row;
+  flex: 1 0 auto;
+}
+
 .box-list .empty {
   color: var(--color-muted-text);
   padding: 12px;
@@ -481,6 +486,7 @@ input[type="checkbox"]:checked::after {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin: 8px 0;
 }
 
 .time-entry-list .box-list-item {
@@ -607,10 +613,9 @@ detail-row {
   margin-left: 0;
 }
 
-.details-actions {
+.task-time-entries {
   display: flex;
-  gap: 8px;
-  margin-top: 8px;
+  flex-direction: column;
 }
 
 .edit-form {
@@ -622,11 +627,6 @@ detail-row {
 
 textarea {
   height: 100px;
-}
-
-.edit-buttons {
-  display: flex;
-  gap: 8px;
 }
 
 .task-actions {

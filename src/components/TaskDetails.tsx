@@ -1,12 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Task } from '../models/Task';
 import contexts from '../models/Contexts';
-import TimeEntriesList from './TimeEntriesList';
-import { useTaskTimeEntriesDB } from '../hooks/useTaskTimeEntriesDB';
+import TaskTimeEntries from './TaskTimeEntries';
 import './TaskManager.css';
 import StarIcon from './icons/StarIcon';
-import PlayIcon from './icons/PlayIcon';
-import PauseIcon from './icons/PauseIcon';
 
 interface TaskDetailsProps {
   selectedTask: Task | null;
@@ -50,44 +47,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
 
   const [isDescriptionOpen, setDescriptionOpen] = useState(true);
 
-  const {
-      timeEntries,
-      loadTimeEntries,
-      startTask,
-      pauseTask,
-      isTaskStarted
-    } = useTaskTimeEntriesDB();
-
-  useEffect(() => {
-          loadTimeEntries();
-      }, [loadTimeEntries]);
-
   if (!selectedTask) return null;
-
-  const filteredEntries = (selectedTask.id
-        ? timeEntries.filter(entry => entry.taskId === selectedTask.id)
-        : timeEntries
-    ).sort((a, b) => b.started - a.started);
-
-  let started = !!filteredEntries.find(x => !x.stopped);
-
-  const toggleStarted = async (task: Task) => {
-    if (!task || !task.id) {
-      return;
-    }
-
-    const isStarted = await isTaskStarted(task.id);
-
-    if (isStarted)  {
-      console.log('pause');
-      await pauseTask(task.id);
-      onTimeEntriesChange();
-    } else {
-      console.log('start');
-      await startTask(task.id);
-      onTimeEntriesChange();
-    }
-  };
 
   return (
     <section className="col right">
@@ -115,41 +75,17 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
         <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
         <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
 
-        <div className="details-actions">
+        <div className="box-list box-list-row">
           <button onClick={onClose}>Close</button>
           <button onClick={onEdit}>Edit</button>
           <button className="danger" onClick={onDelete}>Delete</button>
         </div>
 
-        <div className="details-actions">
-          { started &&
-            <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleStarted(selectedTask);
-                }}
-                aria-label='Pause task'
-              >
-                <PauseIcon ariaLabel='Pause task' title="Pause" size={16} ></PauseIcon>
-              </button>
-          }
-
-          { !started &&
-              <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleStarted(selectedTask);
-              }}
-              aria-label='Start task'
-            >
-              <PlayIcon ariaLabel='Start task' title="Start" size={16} ></PlayIcon>
-            </button>
-          }
-
-        </div>
-
-        <TimeEntriesList taskId={selectedTask.id} />
-
+        {!editingTaskId && (
+          <TaskTimeEntries
+            selectedTask={selectedTask}
+            onTimeEntriesChange={onTimeEntriesChange} />
+        )}
 
         {editingTaskId !== null && (
           <div className="edit-form">
@@ -203,9 +139,9 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               ))}
             </select>
 
-            <div className="edit-buttons">
-              <button onClick={onSave}>Save</button>
+            <div className="box-actions">
               <button onClick={onClose}>Cancel</button>
+              <button className='accent' onClick={onSave}>Save</button>
             </div>
           </div>
         )}
