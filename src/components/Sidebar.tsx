@@ -28,6 +28,7 @@ interface SidebarProps {
   onTagSelect: (tag: string | null) => void;
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  timeEntriesUpdateTrigger: number;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -43,6 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onTagSelect,
   sidebarOpen,
   onToggleSidebar,
+  timeEntriesUpdateTrigger,
 }) => {
   const extractHashtags = (text: string) => {
     const matches = text.match(/#\w+/g) || [];
@@ -57,22 +59,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   const { timeEntries, loadTimeEntries } = useTaskTimeEntriesDB();
 
   useEffect(() => {
-            loadTimeEntries();
-        }, [loadTimeEntries]);
+    loadTimeEntries();
+  }, [loadTimeEntries, timeEntriesUpdateTrigger]);
 
   const allTags = new Set<string>();
   tasks.forEach(task => {
     extractHashtags(task.title).forEach(tag => allTags.add(tag));
   });
   const uniqueTags = Array.from(allTags).sort();
-
-  const getStartedTasksCount = () => {
-    const taskIdsWithFinishedEntries = new Set(
-      timeEntries.filter(entry => !entry.stopped).map(entry => entry.taskId)
-    );
-    console.log('taskIdsWithFinishedEntries', taskIdsWithFinishedEntries);
-    return taskIdsWithFinishedEntries.size;
-  }
 
   const getTagCount = (tag: string) => {
     return tasks.filter(task => task.title.includes(`#${tag}`) && !task.deleted && !task.completed).length;
@@ -87,6 +81,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       return (!task.context || task.context === 'anywhere') && !task.deleted && !task.completed;
     }).length;
   };
+
+  const getStartedTasksCount = () => {
+    const taskIds = new Set(tasks.map(t => t.id));
+    const taskIdsWithOngoingEntries = new Set(
+      timeEntries.filter(entry => !entry.stopped && taskIds.has(entry.taskId)).map(entry => entry.taskId)
+    );
+    return taskIdsWithOngoingEntries.size;
+  }
 
   const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
 
@@ -185,6 +187,18 @@ const Sidebar: React.FC<SidebarProps> = ({
             <StarIcon title="Starred" isFilled={true} />
             {starredTasks.length > 0 && <span className="badge">{starredTasks.length}</span>}
           </li>
+
+          {startedCount > 0 ?
+            <li
+              className={`box-item `}
+              onClick={() => { onBoxSelect('started'); onTagSelect(null); }}
+            >
+                <PlayIcon title="In progress" />
+                <span className="badge">{startedCount}</span>
+            </li>
+            : null
+          }
+
           <li
             className={`box-item ${selectedBox === 'done' && !selectedTag ? 'active' : ''}`}
             onClick={() => { onBoxSelect('done'); onTagSelect(null); }}
@@ -192,17 +206,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             <CheckIcon title="Done" isChecked={true} />
             {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
           </li>
-
-          {startedCount > 0 ?
-            <li
-              className={`box-item `}
-              onClick={() => { onBoxSelect('started'); onTagSelect(null); }}
-            >
-                <PlayIcon title="Started tasks" />
-                <span className="badge">{startedCount}</span>
-            </li>
-            : null
-          }
 
           {noTagsCount > 0 ?
             <li

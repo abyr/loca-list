@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Task } from '../models/Task';
 import contexts from '../models/Contexts';
 import { useTaskDB } from '../hooks/useTaskDB';
@@ -33,6 +33,7 @@ const TaskManager: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedContext, setSelectedContext] = useState<string>('anywhere');
+  const [timeEntriesUpdateTrigger, setTimeEntriesUpdateTrigger] = useState(0);
   const { isMobile } = useScreenWidth();
   const isMobileLayout = isMobile;
 
@@ -234,6 +235,11 @@ const TaskManager: React.FC = () => {
     loadTasks();
   };
 
+  const handleTimeEntriesChange = useCallback(() => {
+    loadTimeEntries();
+    setTimeEntriesUpdateTrigger(prev => prev + 1);
+  }, [loadTimeEntries]);
+
   return (
     <div className='tm-container'>
       {!isMobileLayout && (
@@ -260,6 +266,7 @@ const TaskManager: React.FC = () => {
           onTagSelect={onTagSelect}
           sidebarOpen={sidebarOpen}
           onToggleSidebar={toggleSidebar}
+          timeEntriesUpdateTrigger={timeEntriesUpdateTrigger}
         />
 
         <div className={`tm-tasks ${!isMobileLayout ? 'two-column' : 'one-column'
@@ -358,6 +365,7 @@ const TaskManager: React.FC = () => {
               onEditPriorityChange={setEditPriority}
               onEditContextChange={setEditContext}
               onSave={submitEdit}
+              onTimeEntriesChange={handleTimeEntriesChange}
             />
           </div>
         </div>

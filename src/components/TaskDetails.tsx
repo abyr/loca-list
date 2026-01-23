@@ -25,6 +25,7 @@ interface TaskDetailsProps {
   onEditPriorityChange: (priority: '' | 'low' | 'medium' | 'high') => void;
   onSave: () => void;
   onEditContextChange: (context: string) => void;
+  onTimeEntriesChange: () => void;
 }
 
 const TaskDetails: React.FC<TaskDetailsProps> = ({
@@ -44,6 +45,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
   onEditPriorityChange,
   onEditContextChange,
   onSave,
+  onTimeEntriesChange,
 }) => {
 
   const [isDescriptionOpen, setDescriptionOpen] = useState(true);
@@ -67,8 +69,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
         : timeEntries
     ).sort((a, b) => b.started - a.started);
 
-    console.log('filteredEntries', filteredEntries);
-
   let started = !!filteredEntries.find(x => !x.stopped);
 
   const toggleStarted = async (task: Task) => {
@@ -81,10 +81,11 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
     if (isStarted)  {
       console.log('pause');
       await pauseTask(task.id);
-
+      onTimeEntriesChange();
     } else {
       console.log('start');
       await startTask(task.id);
+      onTimeEntriesChange();
     }
   };
 
@@ -129,7 +130,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 }}
                 aria-label='Pause task'
               >
-                <PauseIcon ariaLabel='Pause task' size={16} ></PauseIcon>
+                <PauseIcon ariaLabel='Pause task' title="Pause" size={16} ></PauseIcon>
               </button>
           }
 
@@ -141,7 +142,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               }}
               aria-label='Start task'
             >
-              <PlayIcon ariaLabel='Start task' size={16} ></PlayIcon>
+              <PlayIcon ariaLabel='Start task' title="Start" size={16} ></PlayIcon>
             </button>
           }
 
