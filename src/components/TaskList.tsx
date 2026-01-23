@@ -6,12 +6,13 @@ import FolderIcon from './icons/FolderIcon';
 import TagIcon from './icons/TagIcon';
 import StarIcon from './icons/StarIcon';
 import MinusIcon from './icons/MinusIcon';
+import PlayIcon from './icons/PlayIcon';
 import PriorityBarIcon from './icons/PriorityBar';
 
 interface TaskListProps {
   displayedActiveTasks: Task[];
   selectedTask: Task | null;
-  selectedBox: 'inbox' | 'starred' | 'done' | null;
+  selectedBox: 'inbox' | 'starred' | 'done' | 'started' | null;
   selectedTag: string | null;
   selectedContext: string | null;
   onTaskClick: (task: Task) => void;
@@ -44,6 +45,8 @@ const TaskList: React.FC<TaskListProps> = ({
                 <FolderIcon title="Inbox" /> :
                 (selectedBox === 'starred') ?
                   <StarIcon title="Starred" isFilled={true} /> :
+                  (selectedBox === 'started') ?
+                    <PlayIcon title="Started" /> :
               ''
         }
       </h2>

@@ -71,8 +71,6 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
 
   let started = !!filteredEntries.find(x => !x.stopped);
 
-  console.log('Current started', started);
-
   const toggleStarted = async (task: Task) => {
     if (!task || !task.id) {
       return;

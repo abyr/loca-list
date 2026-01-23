@@ -6,7 +6,7 @@ import './TaskManager.css';
 interface CompletedTasksSectionProps {
   displayedCompletedTasks: Task[];
   completedTasks: Task[];
-  selectedBox: 'inbox' | 'starred' | 'done' | null;
+  selectedBox: 'inbox' | 'starred' | 'done' | 'started' | null;
   onTaskSelect: (task: Task) => void;
   onDeleteAll: () => void;
 }

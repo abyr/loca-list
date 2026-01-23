@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Task } from '../models/Task';
 import { useTaskDB } from '../hooks/useTaskDB';
+import { useTaskTimeEntriesDB } from '../hooks/useTaskTimeEntriesDB';
 import SettingsPopup from './SettingsPopup';
 import FolderIcon from './icons/FolderIcon';
 import TagIcon from './icons/TagIcon';
@@ -11,6 +12,7 @@ import SearchIcon from './icons/SearchIcon';
 import ExportIcon from './icons/ExportIcon';
 import ImportIcon from './icons/ImportIcon';
 import SettingsIcon from './icons/SettingsIcon';
+import PlayIcon from './icons/PlayIcon';
 import './Sidebar.css';
 
 interface SidebarProps {
@@ -20,8 +22,8 @@ interface SidebarProps {
   starredTasks: Task[];
   searchTerm: string;
   onSearchChange: (term: string) => void;
-  selectedBox: 'inbox' | 'starred' | 'done' | null;
-  onBoxSelect: (box: 'inbox' | 'starred' | 'done') => void;
+  selectedBox: 'inbox' | 'starred' | 'done' | 'started' | null;
+  onBoxSelect: (box: 'inbox' | 'starred' | 'done' | 'started') => void;
   selectedTag: string | null;
   onTagSelect: (tag: string | null) => void;
   sidebarOpen: boolean;
@@ -52,11 +54,25 @@ const Sidebar: React.FC<SidebarProps> = ({
       deleteAllTasks,
     } = useTaskDB();
 
+  const { timeEntries, loadTimeEntries } = useTaskTimeEntriesDB();
+
+  useEffect(() => {
+            loadTimeEntries();
+        }, [loadTimeEntries]);
+
   const allTags = new Set<string>();
   tasks.forEach(task => {
     extractHashtags(task.title).forEach(tag => allTags.add(tag));
   });
   const uniqueTags = Array.from(allTags).sort();
+
+  const getStartedTasksCount = () => {
+    const taskIdsWithFinishedEntries = new Set(
+      timeEntries.filter(entry => !entry.stopped).map(entry => entry.taskId)
+    );
+    console.log('taskIdsWithFinishedEntries', taskIdsWithFinishedEntries);
+    return taskIdsWithFinishedEntries.size;
+  }
 
   const getTagCount = (tag: string) => {
     return tasks.filter(task => task.title.includes(`#${tag}`) && !task.deleted && !task.completed).length;
@@ -87,6 +103,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   }
 
   const importTasks = () => {
+    const confirmed = window.confirm('Importing tasks will DELETE ALL your current tasks. Continue?')
+
+    if (!confirmed) {
+      return;
+    }
     const input = document.createElement('input');
 
     input.type = 'file';
@@ -128,6 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     downloadAnchorNode.remove();
   }
 
+  const startedCount = getStartedTasksCount();
   const noTagsCount = getNoTagsCount();
   const noContextCount = getNoContextCount();
 
@@ -171,13 +193,24 @@ const Sidebar: React.FC<SidebarProps> = ({
             {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
           </li>
 
+          {startedCount > 0 ?
+            <li
+              className={`box-item `}
+              onClick={() => { onBoxSelect('started'); onTagSelect(null); }}
+            >
+                <PlayIcon title="Started tasks" />
+                <span className="badge">{startedCount}</span>
+            </li>
+            : null
+          }
+
           {noTagsCount > 0 ?
             <li
               className={`box-item tag-missed ${selectedTag === 'no-tags' ? 'active' : ''}`}
               onClick={() => { onTagSelect('no-tags'); onBoxSelect('inbox'); }}
             >
               <MinusIcon title="No tags" />
-              {getNoTagsCount() > 0 && <span className="badge">{getNoTagsCount()}</span>}
+              <span className="badge">{noTagsCount}</span>
             </li>
           : null}
 
@@ -187,7 +220,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => { onTagSelect('no-context'); onBoxSelect('inbox'); }}
             >
               <MinusIcon title="No context" />
-              {getNoContextCount() > 0 && <span className="badge">{getNoContextCount()}</span>}
+              <span className="badge">{noContextCount}</span>
             </li>
           : null}
 
@@ -218,13 +251,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <ExportIcon title='Export tasks' />
             </button>
 
-            <button className="danger" onClick={() => {
-              const confirmed = window.confirm('Importing tasks will DELETE ALL your current tasks. Continue?')
-
-              if (confirmed) {
-                importTasks();
-              }
-            }}>
+            <button className="danger" onClick={() => { importTasks(); }}>
               <ImportIcon title='Import tasks' />
             </button>
         </div>

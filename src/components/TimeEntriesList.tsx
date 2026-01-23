@@ -1,19 +1,20 @@
 import React, { useEffect } from 'react';
 import { useTaskTimeEntriesDB } from '../hooks/useTaskTimeEntriesDB';
 import { TaskTimeEntry } from '../models/TaskTimeEntry';
+import DeleteIcon from './icons/DeleteIcon';
 
 interface TimeEntriesListProps {
     taskId?: number; // Optional taskId parameter
 }
 
 const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId }) => {
-    const { timeEntries, loadTimeEntries } = useTaskTimeEntriesDB();
+    const { timeEntries, loadTimeEntries, deleteTimeEntry } = useTaskTimeEntriesDB();
 
     useEffect(() => {
         loadTimeEntries();
     }, [loadTimeEntries]);
 
-    const formatDate = (timestamp: number) => {
+    const formatLongDate = (timestamp: number) => {
         const date = new Date(timestamp);
         const now = new Date();
 
@@ -22,6 +23,12 @@ const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId }) => {
                         date.getFullYear() === now.getFullYear();
 
         return isToday ? date.toLocaleTimeString() : date.toLocaleString();
+    }
+
+    const formatISODate = (timestamp: number) => {
+        const date = new Date(timestamp);
+
+        return date.toISOString().substring(0, 10);
     }
 
     const getTimeSpent = (timeEntry: TaskTimeEntry) => {
@@ -44,20 +51,30 @@ const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId }) => {
 
 
     const getSummaryTimeSpent = () => {
-        const totalSpent = filteredEntries.reduce((total, entry) => {
+        const totalSpentMs = filteredEntries.reduce((total, entry) => {
             if (entry.stopped) {
                 const startTime = new Date(entry.started).getTime();
                 const stopTime = new Date(entry.stopped).getTime();
                 return total + (stopTime - startTime);
             }
             return total;
-        }, 0); // Total time in milliseconds
+        }, 0);
 
-        // Convert totalSpent to hours and minutes
-        const hours = Math.floor(totalSpent / 3600000);
-        const minutes = Math.floor((totalSpent % 3600000) / 60000);
+        const hours = Math.floor(totalSpentMs / 3600000);
+        const minutes = Math.floor((totalSpentMs % 3600000) / 60000);
+
         return `${hours}h ${minutes}m`;
     }
+
+    const handleDelete = async (entryId?: number) => {
+        if (!entryId) {
+            return;
+        }
+        const confirmed = window.confirm('Delete time entry?');
+        if (!confirmed) return;
+        await deleteTimeEntry(entryId);
+        loadTimeEntries();
+    };
 
     return (
         <div className='time-entries-container card'>
@@ -71,19 +88,24 @@ const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId }) => {
 
                         {entry.stopped && (
                             <div className='time-entry-text'>
-                                <strong>{getTimeSpent(entry)}</strong>
-                                <span>({formatDate(entry.started)} - {formatDate(entry.stopped)})</span>
+                                <span>{formatISODate(entry.started)} : <strong>{getTimeSpent(entry)}</strong> </span>
+
+                                <button onClick={() => handleDelete(entry.id)} aria-label="Delete time entry"
+                                        className="danger">
+                                    <DeleteIcon size={16} />
+                                </button>
                             </div>
                         )}
 
                         {!entry.stopped && (
-                            <span>{formatDate(entry.started)} - Ongoing</span>
+                            <span>{formatLongDate(entry.started)} - Ongoing</span>
                         )}
+
                     </li>
                 ))}
             </ul>
             <div>
-                <strong>Total Time Spent: </strong>{getSummaryTimeSpent()}
+                <span>Total: </span> <strong>{getSummaryTimeSpent()} </strong>
             </div>
         </div>
     );

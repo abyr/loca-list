@@ -53,5 +53,14 @@ export const useTaskTimeEntriesDB = () => {
     }
   }, []);
 
-  return { timeEntries, loadTimeEntries, startTask, pauseTask, isTaskStarted };
+  const deleteTimeEntry = useCallback(async (entryId: number) => {
+    try {
+      await taskTimeEntryDAO.deleteTimeEntry(entryId);
+      await loadTimeEntries();
+    } catch (e) {
+      console.error(e);
+    }
+  }, [loadTimeEntries]);
+
+  return { timeEntries, loadTimeEntries, startTask, pauseTask, isTaskStarted, deleteTimeEntry };
 };

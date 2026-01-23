@@ -5,6 +5,7 @@ import { useTaskDB } from '../hooks/useTaskDB';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { useTaskFilter } from '../hooks/useTaskFilter';
 import { useScreenWidth } from '../hooks/useScreenWidth';
+import { useTaskTimeEntriesDB } from '../hooks/useTaskTimeEntriesDB';
 import Sidebar from './Sidebar';
 import TaskList from './TaskList';
 import TaskDetails from './TaskDetails';
@@ -23,10 +24,12 @@ const TaskManager: React.FC = () => {
     deleteTask,
   } = useTaskDB();
 
+  const { timeEntries, loadTimeEntries } = useTaskTimeEntriesDB();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | null>('inbox');
+  const [selectedBox, setSelectedBox] = useState<'inbox' | 'starred' | 'done' | 'started' | null>('inbox');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedContext, setSelectedContext] = useState<string>('anywhere');
@@ -35,7 +38,8 @@ const TaskManager: React.FC = () => {
 
   useEffect(() => {
     loadTasks();
-  }, [loadTasks]);
+    loadTimeEntries();
+  }, [loadTasks, loadTimeEntries]);
 
   const {
     title: newTitle,
@@ -170,6 +174,10 @@ const TaskManager: React.FC = () => {
 
   const starredTasks = filteredTasks.filter(t => t.starred && !t.deleted);
 
+  const startedTasks = filteredTasks.filter(task => {
+    return timeEntries.some(entry => entry.taskId === task.id && !entry.stopped);
+  });
+
   const filterTasksByTag = (taskList: Task[]) => {
     if (!selectedTag) return taskList;
     if (selectedTag === 'no-tags') {
@@ -182,7 +190,13 @@ const TaskManager: React.FC = () => {
     return taskList.filter(task => task.title.includes(`#${selectedTag}`));
   };
 
-  const displayedActiveTasks = selectedBox === 'done' ? [] : selectedBox === 'starred' ? filterTasksByTag(starredTasks) : filterTasksByTag(activeTasks.sort((a, b) => {
+  const displayedActiveTasks = (selectedBox === 'done') ?
+    [] :
+    (selectedBox === 'starred') ?
+      filterTasksByTag(starredTasks) :
+      (selectedBox === 'started') ?
+        filterTasksByTag(startedTasks) :
+        filterTasksByTag(activeTasks.sort((a, b) => {
     if (a.starred === b.starred) return 0;
     return a.starred ? -1 : 1;
   }));
@@ -207,7 +221,7 @@ const TaskManager: React.FC = () => {
     setSelectedTag(tag);
   }
 
-  const onBoxSelect = (box: 'inbox' | 'starred' | 'done') => {
+  const onBoxSelect = (box: 'inbox' | 'starred' | 'done' | 'started') => {
     closeDetails();
     setSelectedBox(box);
   }
@@ -222,16 +236,14 @@ const TaskManager: React.FC = () => {
 
   return (
     <div className='tm-container'>
-      { !isMobileLayout && (
+      {!isMobileLayout && (
         <ContextTabs
           selectedContext={selectedContext}
           setSelectedContext={handleContextChange}
         />
-      ) }
+      )}
 
-      <div className={`tm-content ${
-        sidebarOpen ? 'sidebar-open' : '' } ${
-          isMobileLayout ? 'phone' : 'desktop'
+      <div className={`tm-content ${sidebarOpen ? 'sidebar-open' : ''} ${isMobileLayout ? 'phone' : 'desktop'
         }`}
         onClick={() => setSidebarOpen(false)}
       >
@@ -250,25 +262,24 @@ const TaskManager: React.FC = () => {
           onToggleSidebar={toggleSidebar}
         />
 
-        <div className={`tm-tasks ${
-          !isMobileLayout ? 'two-column' : 'one-column'
-        }`}>
+        <div className={`tm-tasks ${!isMobileLayout ? 'two-column' : 'one-column'
+          }`}>
           <div className="columns">
             <aside className={`col left ${(selectedTask && isMobileLayout) ? 'hidden' : ''}`}>
               <div className="left-navigation-bar">
 
-                { isMobileLayout && (
+                {isMobileLayout && (
                   <span className='icon-trigger'
-                      onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
-                      onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
+                    onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
+                    onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
                     <MenuIcon
                       title=""
                       ariaLabel="Toggle Sidebar"
                     />
-                </span>
-                ) }
+                  </span>
+                )}
 
-                { isMobileLayout && (
+                {isMobileLayout && (
                   <div className='mobile-context-dropdown'>
                     <select
                       value={selectedContext}
@@ -282,7 +293,7 @@ const TaskManager: React.FC = () => {
                       ))}
                     </select>
                   </div>
-                ) }
+                )}
               </div>
 
               <div className="left-header">
