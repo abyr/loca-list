@@ -48,23 +48,36 @@ const TaskManager: React.FC = () => {
     reset: resetAddTaskForm,
     onSubmit: onSubmitNewTask,
   } = useTaskForm(null, async ({ title, description }) => {
-    const newTitle = addSelectedTagToTitle(title);
+    const priorityMatch = title.match(/(?:priority|pri):([HML])/i);
+    const priorityMap: {
+      [key: string]: 'high' | 'medium' | 'low'
+    } = { 'H': 'high', 'M': 'medium', 'L': 'low' };
+    const priority = (priorityMatch ? priorityMap[priorityMatch[1].toUpperCase()] : '') as '' | 'high' | 'medium' | 'low';
+    const cleanTitle = removeMetaTags(title);
+    const newTitle = addSelectedTagToTitle(cleanTitle);
+    const finalDescription = priorityMatch ? `Origin task: ${title}.\n\n${description}` : description;
 
     closeDetails();
 
     await addTask({
       title: newTitle,
-      description,
+      description: finalDescription,
       createdDate: Date.now(),
       updatedDate: Date.now(),
       completed: false,
       deleted: false,
       starred: false,
-      priority: '',
+      priority: priority,
       context: selectedContext || 'anywhere',
     });
     resetAddTaskForm();
   });
+
+  const removeMetaTags = (title: string) => {
+    return title.replace(/\s*(?:priority|pri):[HML]\s*/gi, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+  }
 
   const addSelectedTagToTitle = (title: string) => {
     if (!selectedTag || selectedTag === 'no-tags' || selectedTag === 'no-context') {
