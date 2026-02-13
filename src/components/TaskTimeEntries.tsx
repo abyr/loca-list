@@ -24,6 +24,9 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
 
   const [isBodyOpen, setIsBodyOpen] = useState(false);
 
+  const [lastUpdated, setLastUpdated] = useState(0);
+
+
   useEffect(() => {
     loadTimeEntries();
   }, [loadTimeEntries]);
@@ -41,11 +44,14 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
 
     if (isStarted) {
       await pauseTask(task.id);
-      onTimeEntriesChange();
     } else {
       await startTask(task.id);
-      onTimeEntriesChange();
     }
+
+    await loadTimeEntries();
+
+    onTimeEntriesChange();
+    setLastUpdated(Date.now());
   };
 
   return (
@@ -86,7 +92,10 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
           }
 
           {filteredEntries.length ?
-            <TimeEntriesList taskId={selectedTask.id} /> :
+            <TimeEntriesList
+              taskId={selectedTask.id}
+              lastUpdated={lastUpdated}
+            /> :
             null }
         </div>
       )}

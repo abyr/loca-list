@@ -5,15 +5,16 @@ import DeleteIcon from './icons/DeleteIcon';
 
 interface TimeEntriesListProps {
     taskId?: number;
+    lastUpdated?: number;
 }
 
-const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId }) => {
+const TimeEntriesList: React.FC<TimeEntriesListProps> = ({ taskId, lastUpdated }) => {
     const { timeEntries, loadTimeEntries, deleteTimeEntry } = useTaskTimeEntriesDB();
     const [isListOpen, setIsListOpen] = useState(false);
 
     useEffect(() => {
         loadTimeEntries();
-    }, [loadTimeEntries]);
+    }, [loadTimeEntries, lastUpdated]);
 
     const formatLongDate = (timestamp: number) => {
         const date = new Date(timestamp);
