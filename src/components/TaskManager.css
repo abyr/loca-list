@@ -312,6 +312,61 @@ input[type="checkbox"]:checked::after {
 
 /* --------------------------- */
 
+.tabs-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tabs-switchers {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.5rem;
+}
+
+.tab-switch {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #333;
+  background: transparent;
+  user-select: none;
+  outline: none;
+}
+
+.tab-switch:focus {
+  box-shadow: 0 0 0 2px rgba(100, 150, 250, 0.2);
+}
+
+.tab-switch.active {
+  background: #f0f6ff;
+  border: 1px solid #cfe0ff;
+  color: #0b63d6;
+  font-weight: 600;
+}
+
+.tabs {
+  padding-top: 0.75rem;
+}
+
+/* Hide non-active tabs */
+.tab-content {
+  display: none;
+  animation: fadeIn 160ms ease-in;
+}
+
+/* Show active tab */
+.tab-content.active {
+  display: block;
+}
+
+/* small fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .tm-tasks {
   flex: 1;
   display: flex;

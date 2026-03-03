@@ -22,7 +22,7 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
     isTaskStarted
   } = useTaskTimeEntriesDB();
 
-  const [isBodyOpen, setIsBodyOpen] = useState(false);
+  const [isBodyOpen, setIsBodyOpen] = useState(true);
 
   const [lastUpdated, setLastUpdated] = useState(0);
 
