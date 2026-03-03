@@ -57,28 +57,46 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
 
           <strong>{selectedTask.title}</strong>
         </div>
+
         <div className="detail-row"><strong>Context:</strong> {contexts.find(ctx => ctx.id === selectedTask.context)?.name || 'Anywhere'}</div>
         <div className="detail-row"><strong>Priority:</strong> {selectedTask.priority || 'None'}</div>
 
-        <div className="detail-row details-desc">
-          <strong>Description:</strong>
-          <button onClick={() => setDescriptionOpen(!isDescriptionOpen)}>
-            {isDescriptionOpen ? 'Hide' : 'Show'}
-          </button>
-          {isDescriptionOpen && (
-            <div>
-              {selectedTask.description || <em>No description</em>}
-            </div>
-          )}
-        </div>
+        {!selectedTask.description && (
+          <div className="detail-row">
+            <strong>Description:</strong> <em>No description</em>
+          </div>
+        )}
 
-        <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div>
-        <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div>
+        {selectedTask.description && (
+          <div className="detail-row details-desc">
+              <div>
+                <strong>Description</strong>
+                <button onClick={() => setDescriptionOpen(!isDescriptionOpen)}>
+                  {isDescriptionOpen ? 'Hide' : 'Show'}
+                </button>
+              </div>
+
+            {isDescriptionOpen && (
+              <div className='details-desc-text'>
+                {selectedTask.description}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* <div className="detail-row"><strong>Created:</strong> {new Date(selectedTask.createdDate).toLocaleString()}</div> */}
+        {/* <div className="detail-row"><strong>Updated:</strong> {new Date(selectedTask.updatedDate).toLocaleString()}</div> */}
 
         <div className="box-list box-list-row">
-          <button onClick={onClose}>Close</button>
-          <button onClick={onEdit}>Edit</button>
-          <button className="danger" onClick={onDelete}>Delete</button>
+          <div className="box-list-row--auto">
+            <button onClick={onClose}>Close</button>
+            <button onClick={onEdit}>Edit</button>
+
+          </div>
+          <div className="box-list-row--initial">
+            <button className="danger" onClick={onDelete}>Delete</button>
+          </div>
+
         </div>
 
         {!editingTaskId && (

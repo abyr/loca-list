@@ -432,6 +432,17 @@ input[type="checkbox"]:checked::after {
   height: 20px;
 }
 
+.flexed {
+  display: flex;
+  flex-direction: row;
+}
+.flexed-auto {
+  flex: auto;
+}
+.flexed-initial {
+  flex: initial;
+}
+
 .box-list {
   list-style: none;
   padding: 0;
@@ -446,6 +457,19 @@ input[type="checkbox"]:checked::after {
 .box-list.box-list-row {
   flex-direction: row;
   flex: 1 0 auto;
+
+}
+
+.box-list-row--auto {
+  flex: auto;
+  gap: 16px;
+  display: flex;
+}
+
+.box-list-row--initial {
+  flex: initial;
+  gap: 16px;
+  display: flex;
 }
 
 .box-list .empty {
@@ -602,8 +626,13 @@ detail-row {
 }
 
 .detail-row.details-desc {
-  overflow: scroll;
   max-height: 50vh;
+  overflow-x: hidden;
+}
+
+.details-desc .details-desc-text {
+  margin: 8px 0;
+  overflow-x: scroll;
 }
 
 .detail-row .icon-box {
@@ -636,6 +665,14 @@ textarea {
 }
 
 .task-actions button {
+  background: var(--color-primary-bg);
+  border: none;
+  cursor: pointer;
+  flex: 1 1;
+  margin-right: 8px;
+}
+
+.detail-row button {
   background: var(--color-primary-bg);
   border: none;
   cursor: pointer;

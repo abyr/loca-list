@@ -57,13 +57,12 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
   return (
     <div className='task-time-entries'>
 
-        <h3>
-            <strong>Time entries</strong>
-            <button onClick={() => setIsBodyOpen(!isBodyOpen)}>
-                {isBodyOpen ? 'Hide' : 'Show'}
-            </button>
-        </h3>
-
+      <h3>
+          <strong>Time entries</strong>
+          <button onClick={() => setIsBodyOpen(!isBodyOpen)}>
+              {isBodyOpen ? 'Hide' : 'Show'}
+          </button>
+      </h3>
 
       {isBodyOpen && (
         <div className='time-entries-body'>
