@@ -124,7 +124,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               <div className="box-list box-list-row">
                 <div className="box-list-row--auto">
                   <button onClick={onClose}>Close</button>
-                  <button onClick={onEdit}>Edit</button>
+                  <button className="accent" onClick={onEdit}>Edit</button>
 
                 </div>
                 <div className="box-list-row--initial">

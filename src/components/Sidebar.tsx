@@ -155,6 +155,18 @@ const Sidebar: React.FC<SidebarProps> = ({
   const noTagsCount = getNoTagsCount();
   const noContextCount = getNoContextCount();
 
+  const onClickBox = (box: 'inbox' | 'starred' | 'done' | 'started') => {
+    onBoxSelect(box);
+    onTagSelect(null);
+    onToggleSidebar();
+  };
+
+  const onClickTag = (tag: string) => {
+    onTagSelect(tag);
+    onBoxSelect('inbox');
+    onToggleSidebar();
+  }
+
   return (
     <div className="sidebar" onClick={(e) => e.stopPropagation()}>
 
@@ -175,14 +187,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         <ul className="box-list">
           <li
             className={`box-item ${selectedBox === 'inbox' && !selectedTag ? 'active' : ''}`}
-            onClick={() => { onBoxSelect('inbox'); onTagSelect(null); }}
+            onClick={() => { onClickBox('inbox'); }}
           >
             <FolderIcon title="Inbox" />
             {activeTasks.length > 0 && <span className="badge">{activeTasks.length}</span>}
           </li>
           <li
             className={`box-item ${selectedBox === 'starred' && !selectedTag ? 'active' : ''}`}
-            onClick={() => { onBoxSelect('starred'); onTagSelect(null); }}
+            onClick={() => { onClickBox('starred'); }}
           >
             <StarIcon title="Starred" isFilled={true} />
             {starredTasks.length > 0 && <span className="badge">{starredTasks.length}</span>}
@@ -191,7 +203,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {startedCount > 0 ?
             <li
               className={`box-item `}
-              onClick={() => { onBoxSelect('started'); onTagSelect(null); }}
+              onClick={() => { onClickBox('started'); }}
             >
                 <PlayIcon title="In progress" />
                 <span className="badge">{startedCount}</span>
@@ -201,7 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           <li
             className={`box-item ${selectedBox === 'done' && !selectedTag ? 'active' : ''}`}
-            onClick={() => { onBoxSelect('done'); onTagSelect(null); }}
+            onClick={() => { onClickBox('done'); }}
           >
             <CheckIcon title="Done" isChecked={true} />
             {completedTasks.length > 0 && <span className="badge">{completedTasks.length}</span>}
@@ -210,7 +222,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {noTagsCount > 0 ?
             <li
               className={`box-item tag-missed ${selectedTag === 'no-tags' ? 'active' : ''}`}
-              onClick={() => { onTagSelect('no-tags'); onBoxSelect('inbox'); }}
+              onClick={() => { onClickTag('no-tags'); }}
             >
               <MinusIcon title="No tags" />
               <span className="badge">{noTagsCount}</span>
@@ -220,7 +232,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {noContextCount > 0 ?
             <li
               className={`box-item context-missed ${selectedTag === 'no-context' ? 'active' : ''}`}
-              onClick={() => { onTagSelect('no-context'); onBoxSelect('inbox'); }}
+              onClick={() => { onClickTag('no-context'); }}
             >
               <MinusIcon title="No context" />
               <span className="badge">{noContextCount}</span>
@@ -233,7 +245,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <li
               key={tag}
               className={`box-item tag-item ${selectedTag === tag ? 'active' : ''}`}
-              onClick={() => { onTagSelect(tag); onBoxSelect('inbox'); }}
+              onClick={() => { onClickTag(tag); }}
             >
               <TagIcon title={tag} />
               {getTagCount(tag) > 0 && <span className="badge">{getTagCount(tag)}</span>}

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, { useEffect, useState } from 'react';
 import {useTaskTimeEntriesDB} from '../hooks/useTaskTimeEntriesDB';
 import {TaskTimeEntry} from '../models/TaskTimeEntry';
 import DeleteIcon from './icons/DeleteIcon';
@@ -8,23 +8,48 @@ interface TimeEntriesListProps {
   lastUpdated?: number;
 }
 
+const getTimeSpentParts = (timeEntry: TaskTimeEntry, now: Date = new Date()) => {
+  const startTime = new Date(timeEntry.started);
+  const endTime = timeEntry.stopped ? new Date(timeEntry.stopped) : now;
+
+  const diffMs = endTime.getTime() - startTime.getTime();
+  const hours = Math.floor(diffMs / 3600000);
+  const minutes = Math.floor((diffMs % 3600000) / 60000);
+  const seconds = Math.floor((diffMs % 60000) / 1000);
+
+  return { hours, minutes, seconds };
+};
+
+const formatTimeSpent = (timeEntry: TaskTimeEntry, now?: Date) => {
+  const { hours, minutes, seconds } = getTimeSpentParts(timeEntry, now);
+  return `${hours}h ${minutes}m ${seconds}s`;
+};
+
+const OngoingTimeLabel: React.FC<{ entry: TaskTimeEntry }> = ({ entry }) => {
+  const [now, setNow] = useState<Date>(new Date());
+  const isStarted = !entry.stopped;
+
+  useEffect(() => {
+    if (!isStarted) {
+      return;
+    }
+
+    const id = setInterval(() => setNow(new Date()), 1000);
+
+    return () => clearInterval(id);
+  }, [isStarted]);
+
+  const label = formatTimeSpent(entry, now);
+
+  return (<span>{label}</span>);
+};
+
 const TimeEntriesList: React.FC<TimeEntriesListProps> = ({taskId, lastUpdated}) => {
   const {timeEntries, loadTimeEntries, deleteTimeEntry} = useTaskTimeEntriesDB();
 
   useEffect(() => {
     loadTimeEntries();
   }, [loadTimeEntries, lastUpdated]);
-
-  const formatLongDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-
-    const isToday = date.getDate() === now.getDate() &&
-        date.getMonth() === now.getMonth() &&
-        date.getFullYear() === now.getFullYear();
-
-    return isToday ? date.toLocaleTimeString() : date.toLocaleString();
-  }
 
   const formatISODate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -96,7 +121,9 @@ const TimeEntriesList: React.FC<TimeEntriesListProps> = ({taskId, lastUpdated}) 
             )}
 
             {!entry.stopped && (
-              <span>{formatLongDate(entry.started)} - Ongoing</span>
+                <div className='time-entry-text'>
+                  <span>{formatISODate(entry.started)} : <strong><OngoingTimeLabel entry={entry} /></strong></span>
+                </div>
             )}
           </li>
         ))}
