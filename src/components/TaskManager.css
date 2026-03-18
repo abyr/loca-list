@@ -287,8 +287,7 @@ input[type="checkbox"]:checked::after {
   padding: 10px;
   border: none;
   border-radius: 5px;
-  background: none;
-  background-color: var(--color-muted-bg);
+  background: var(--color-muted-bg) none;
   color: var(--color-text);
   cursor: pointer;
   transition: background-color 0.3s;
@@ -512,7 +511,7 @@ input[type="checkbox"]:checked::after {
 .box-list.box-list-row {
   flex-direction: row;
   flex: 1 0 auto;
-
+  margin: 16px 0 8px 0;
 }
 
 .box-list-row--auto {
@@ -570,8 +569,7 @@ input[type="checkbox"]:checked::after {
 
 .time-entry-list .box-list-item {
   flex-direction: column;
-  justify-content: baseline;
-  align-items: start;
+  align-items: baseline;
   padding: 0;
 }
 
@@ -669,7 +667,7 @@ input[type="checkbox"]:checked::after {
   overflow-y: auto;
 }
 
-detail-row {
+.detail-row {
   margin-bottom: 8px;
   color: var(--color-heading);
   gap: 8px;
@@ -698,6 +696,12 @@ detail-row {
 }
 
 .task-time-entries {
+  display: flex;
+  flex-direction: column;
+}
+.time-entries-body {
+  margin-bottom: 8px;
+  gap: 8px;
   display: flex;
   flex-direction: column;
 }
@@ -758,7 +762,6 @@ textarea {
 
 .icon-title {
   color: var(--color-text);
-  font-size: 1em;
   margin-left: 8px;
   white-space: nowrap;
   overflow: hidden;
@@ -783,7 +786,6 @@ textarea {
 .badge {
   background: var(--color-primary-1);
   color: var(--color-rev-text);
-  font-size: 12px;
   border-radius: 999px;
   margin-left: auto;
   padding: 0.15rem 0.5rem;

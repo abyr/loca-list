@@ -3,6 +3,7 @@ import { render, screen, act } from '@testing-library/react';
 import App from './App';
 
 test('renders loca list title', async () => {
+  // eslint-disable-next-line testing-library/no-unnecessary-act
   await act(async () => {
     render(<App />);
   });

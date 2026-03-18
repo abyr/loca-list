@@ -22,10 +22,7 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
     isTaskStarted
   } = useTaskTimeEntriesDB();
 
-  const [isBodyOpen, setIsBodyOpen] = useState(true);
-
   const [lastUpdated, setLastUpdated] = useState(0);
-
 
   useEffect(() => {
     loadTimeEntries();
@@ -56,16 +53,8 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
 
   return (
     <div className='task-time-entries'>
-
-      <h3>
-          <strong>Time entries</strong>
-          <button onClick={() => setIsBodyOpen(!isBodyOpen)}>
-              {isBodyOpen ? 'Hide' : 'Show'}
-          </button>
-      </h3>
-
-      {isBodyOpen && (
-        <div className='time-entries-body'>
+      <div className='time-entries-body'>
+        <div className='time-entries-controls'>
           {started &&
             <button
               onClick={(e) => {
@@ -84,21 +73,19 @@ const TaskTimeEntries: React.FC<TaskTimeEntriesProps> = ({
                 e.stopPropagation();
                 toggleStarted(selectedTask);
               }}
-              aria-label='Start task'
             >
               <PlayIcon ariaLabel='Start task' title="Start" size={16} />
             </button>
           }
-
-          {filteredEntries.length ?
-            <TimeEntriesList
-              taskId={selectedTask.id}
-              lastUpdated={lastUpdated}
-            /> :
-            null }
         </div>
-      )}
 
+        {filteredEntries.length ?
+          <TimeEntriesList
+            taskId={selectedTask.id}
+            lastUpdated={lastUpdated}
+          /> :
+          null }
+      </div>
 
     </div>
   );
