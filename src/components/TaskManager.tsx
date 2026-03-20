@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Task } from '../models/Task';
-import contexts from '../models/Contexts';
 import { useTaskDB } from '../hooks/useTaskDB';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { useTaskFilter } from '../hooks/useTaskFilter';
@@ -12,7 +11,6 @@ import TaskDetails from './TaskDetails';
 import CompletedTasksSection from './CompletedTasksSection';
 import AddTask from './AddTask';
 import MenuIcon from './icons/MenuIcon';
-import ContextTabs from './ContextTabs';
 import './TaskManager.css';
 
 const TaskManager: React.FC = () => {
@@ -255,13 +253,6 @@ const TaskManager: React.FC = () => {
 
   return (
     <div className='tm-container'>
-      {!isMobileLayout && (
-        <ContextTabs
-          selectedContext={selectedContext}
-          setSelectedContext={handleContextChange}
-        />
-      )}
-
       <div className={`tm-content ${sidebarOpen ? 'sidebar-open' : ''} ${isMobileLayout ? 'phone' : 'desktop'
         }`}
         onClick={() => setSidebarOpen(false)}
@@ -271,6 +262,8 @@ const TaskManager: React.FC = () => {
           activeTasks={activeTasks}
           completedTasks={completedTasks}
           starredTasks={starredTasks}
+          selectedContext={selectedContext}
+          onContextChange={handleContextChange}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           selectedBox={selectedBox}
@@ -287,36 +280,21 @@ const TaskManager: React.FC = () => {
           <div className="columns">
             <aside className={`col left ${(selectedTask && isMobileLayout) ? 'hidden' : ''}`}>
               <div className="left-navigation-bar">
+              </div>
+
+              <div className="left-header">
 
                 {isMobileLayout && (
-                  <span className='icon-trigger'
-                    onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
-                    onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
+                    <span className='icon-trigger'
+                          onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
+                          onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
                     <MenuIcon
-                      title=""
-                      ariaLabel="Toggle Sidebar"
+                        title=""
+                        ariaLabel="Toggle Sidebar"
                     />
                   </span>
                 )}
 
-                {isMobileLayout && (
-                  <div className='mobile-context-dropdown'>
-                    <select
-                      value={selectedContext}
-                      onChange={(e) => handleContextChange(e.target.value)}
-                      aria-label='Select context'
-                    >
-                      {contexts.map((ctx) => (
-                        <option key={ctx.id} value={ctx.id}>
-                          {ctx.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              <div className="left-header">
                 <AddTask
                   title={newTitle}
                   setTitle={setNewTitle}

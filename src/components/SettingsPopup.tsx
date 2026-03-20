@@ -80,6 +80,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose, onSave }
                   {setting.type === 'select' && setting.options && (
                     <select
                       value={String(setting.value)}
+                      aria-label="Select theme"
                       onChange={(e) => {
                         const newVal = e.target.value;
                         setLocalSettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: newVal } : s));

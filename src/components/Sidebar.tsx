@@ -14,12 +14,15 @@ import ImportIcon from './icons/ImportIcon';
 import SettingsIcon from './icons/SettingsIcon';
 import PlayIcon from './icons/PlayIcon';
 import './Sidebar.css';
+import contexts from "../models/Contexts";
 
 interface SidebarProps {
   tasks: Task[];
   activeTasks: Task[];
   completedTasks: Task[];
   starredTasks: Task[];
+  selectedContext: string;
+  onContextChange: (context: string) => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
   selectedBox: 'inbox' | 'starred' | 'done' | 'started' | null;
@@ -36,6 +39,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeTasks,
   completedTasks,
   starredTasks,
+  selectedContext,
+  onContextChange,
   searchTerm,
   onSearchChange,
   selectedBox,
@@ -167,10 +172,30 @@ const Sidebar: React.FC<SidebarProps> = ({
     onToggleSidebar();
   }
 
+  const handleContextChange = (context: string) => {
+    onContextChange(context);
+  };
+
   return (
     <div className="sidebar" onClick={(e) => e.stopPropagation()}>
 
       <div className="sidebar-header">
+
+        <div className='mobile-context-dropdown'>
+          <select
+              id="select-context"
+              value={selectedContext}
+              onChange={(e) => handleContextChange(e.target.value)}
+              aria-label='Select context'
+          >
+            {contexts.map((ctx) => (
+                <option key={ctx.id} value={ctx.id}>
+                  {ctx.name}
+                </option>
+            ))}
+          </select>
+        </div>
+
         <div className="search-block">
           <input
             id="search-tasks-input"
