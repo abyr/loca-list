@@ -285,7 +285,7 @@ const TaskManager: React.FC = () => {
               <div className="left-header">
 
                 {isMobileLayout && (
-                    <span className='icon-trigger'
+                    <span className='menu-icon-trigger'
                           onClick={(e) => { e.stopPropagation(); toggleSidebar(e); }}
                           onKeyDown={(e) => onToggleKeyDown(e, toggleSidebar)}>
                     <MenuIcon

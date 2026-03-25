@@ -451,11 +451,12 @@ input[type="checkbox"]:checked::after {
 .add-task-block {
   display: flex;
   gap: 8px;
-  flex: 1 1 320px;
+  flex: 1;
 }
 
 .add-task-block input {
   flex: 1;
+  width: calc(100% - 100px);
 }
 
 .search-block {
@@ -779,8 +780,9 @@ textarea {
   color: var(--color-rev-text);
 }
 
-.icon-trigger {
+.menu-icon-trigger {
   cursor: pointer;
+  flex: 0;
 }
 
 .badge {
