@@ -196,11 +196,17 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
             </div>
 
             <div className={`tab-content ${activeTab === 'time' ? 'active' : ''}`} tab-id="time">
-                {!editingTaskId && (
-                  <TaskTimeEntries
-                    selectedTask={selectedTask}
-                    onTimeEntriesChange={onTimeEntriesChange} />
-                )}
+              {!editingTaskId && (
+                <TaskTimeEntries
+                  selectedTask={selectedTask}
+                  onTimeEntriesChange={onTimeEntriesChange} />
+              )}
+
+              <div className="box-list box-list-row">
+                <div className="box-list-row--auto">
+                  <button onClick={onClose}>Close</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
