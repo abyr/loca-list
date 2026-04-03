@@ -123,16 +123,13 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
 
               <div className="box-list box-list-row">
                 <div className="box-list-row--auto">
-                  <button onClick={onClose}>Close</button>
-                  <button className="accent" onClick={onEdit}>Edit</button>
-
-                </div>
-                <div className="box-list-row--initial">
                   <button className="danger" onClick={onDelete}>Delete</button>
                 </div>
-
+                <div className="box-list-row--initial">
+                  <button onClick={onClose}>Close</button>
+                  <button className="accent" onClick={onEdit}>Edit</button>
+                </div>
               </div>
-
 
               {editingTaskId !== null && (
                 <div className="edit-form">
@@ -181,7 +178,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                       <option key={ctx.id}
                         value={ctx.id}
                       >
-                        {ctx.name}
+                        {ctx.symbol} {ctx.name}
                       </option>
                     ))}
                   </select>
@@ -204,20 +201,14 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
 
               <div className="box-list box-list-row">
                 <div className="box-list-row--auto">
+                </div>
+                <div className="box-list-row--initial">
                   <button onClick={onClose}>Close</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-
-
-
-
-
-
-
 
       </div>
     </section>

@@ -190,7 +190,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           >
             {contexts.map((ctx) => (
                 <option key={ctx.id} value={ctx.id}>
-                  {ctx.name}
+                  {ctx.symbol} {ctx.name}
                 </option>
             ))}
           </select>
