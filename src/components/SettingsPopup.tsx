@@ -4,6 +4,28 @@ import { Setting } from '../models/Setting';
 import settingsDAO from '../db/SettingsDAO';
 import './Settings.css';
 
+const defaultSettings: Setting[] = [
+  {
+    key: 'theme',
+    title: 'Theme',
+    type: 'select',
+    options: ['light', 'dark'],
+    value: 'light',
+  },
+  {
+    key: 'activateLastUsedContext',
+    title: 'Last Used Context',
+    type: 'select',
+    options: ['on', 'off'],
+    value: 'off',
+  }
+];
+
+const hiddenSettingKeys = new Set([
+  'lastUsedContext',
+  'showContextIcons',
+]);
+
 interface SettingsPopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,7 +36,6 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose, onSave }
   const {
     settings,
     loadSettings,
-    saveSetting
   } = useSettingsDB();
 
   useEffect(() => {
@@ -25,17 +46,17 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose, onSave }
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const defaultSettings = [
-    {
-      key: 'theme',
-      title: 'Theme',
-      type: 'select',
-      options: ['light', 'dark'],
-      value: 'light',
-    } as Setting
-  ];
+    const mergedSettings = defaultSettings.map((defaultSetting) => {
+      const existing = settings.find((setting) => setting.key === defaultSetting.key);
+      return existing ? { ...defaultSetting, ...existing } : defaultSetting;
+    });
 
-    setLocalSettings(settings.length ? settings : defaultSettings);
+    const customSettings = settings.filter((setting) =>
+      !hiddenSettingKeys.has(setting.key) &&
+      !defaultSettings.some((defaultSetting) => defaultSetting.key === setting.key)
+    );
+
+    setLocalSettings([...mergedSettings, ...customSettings]);
   }, [settings]);
 
   const handleSave = async () => {
@@ -80,7 +101,7 @@ const SettingsPopup: React.FC<SettingsPopupProps> = ({ isOpen, onClose, onSave }
                   {setting.type === 'select' && setting.options && (
                     <select
                       value={String(setting.value)}
-                      aria-label="Select theme"
+                      aria-label={`Select ${setting.title}`}
                       onChange={(e) => {
                         const newVal = e.target.value;
                         setLocalSettings(prev => prev.map(s => s.key === setting.key ? { ...s, value: newVal } : s));

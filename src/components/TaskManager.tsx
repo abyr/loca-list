@@ -12,6 +12,8 @@ import CompletedTasksSection from './CompletedTasksSection';
 import AddTask from './AddTask';
 import MenuIcon from './icons/MenuIcon';
 import './TaskManager.css';
+import settingsDAO from '../db/SettingsDAO';
+import contexts from '../models/Contexts';
 
 const TaskManager: React.FC = () => {
   const {
@@ -39,6 +41,33 @@ const TaskManager: React.FC = () => {
     loadTasks();
     loadTimeEntries();
   }, [loadTasks, loadTimeEntries]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadInitialContext = async () => {
+      try {
+        const allSettings = await settingsDAO.getAllSettings();
+        const activateLastUsedContextSetting = allSettings.find((setting) => setting.key === 'activateLastUsedContext');
+        const lastUsedContextSetting = allSettings.find((setting) => setting.key === 'lastUsedContext');
+        const canRestoreLastUsedContext = activateLastUsedContextSetting?.value === 'on';
+        const savedContext = typeof lastUsedContextSetting?.value === 'string' ? lastUsedContextSetting.value : null;
+        const isValidContext = !!savedContext && contexts.some((context) => context.id === savedContext);
+
+        if (mounted && canRestoreLastUsedContext && isValidContext) {
+          setSelectedContext(savedContext);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadInitialContext();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const {
     title: newTitle,
@@ -254,6 +283,15 @@ const TaskManager: React.FC = () => {
     selectedTag && setSelectedTag(null);
     selectedBox !== 'inbox' && setSelectedBox('inbox');
     loadTasks();
+
+    settingsDAO.saveSetting({
+      key: 'lastUsedContext',
+      title: 'Last Used Context Value',
+      type: 'string',
+      value: context,
+    }).catch((err) => {
+      console.error(err);
+    });
   };
 
   const handleTimeEntriesChange = useCallback(() => {
