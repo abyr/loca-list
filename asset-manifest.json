@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/loca-list/static/css/main.91a2e2d5.css",
-    "main.js": "/loca-list/static/js/main.1cf7a123.js",
+    "main.css": "/loca-list/static/css/main.c79d03f0.css",
+    "main.js": "/loca-list/static/js/main.019fd5ac.js",
     "static/js/453.ef7334f1.chunk.js": "/loca-list/static/js/453.ef7334f1.chunk.js",
     "index.html": "/loca-list/index.html",
-    "main.91a2e2d5.css.map": "/loca-list/static/css/main.91a2e2d5.css.map",
-    "main.1cf7a123.js.map": "/loca-list/static/js/main.1cf7a123.js.map",
+    "main.c79d03f0.css.map": "/loca-list/static/css/main.c79d03f0.css.map",
+    "main.019fd5ac.js.map": "/loca-list/static/js/main.019fd5ac.js.map",
     "453.ef7334f1.chunk.js.map": "/loca-list/static/js/453.ef7334f1.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.91a2e2d5.css",
-    "static/js/main.1cf7a123.js"
+    "static/css/main.c79d03f0.css",
+    "static/js/main.019fd5ac.js"
   ]
 }
