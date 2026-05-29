@@ -626,8 +626,22 @@ input[type="checkbox"]:checked::after {
   padding-top: 12px;
 }
 
+.done-block {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .completed-list {
   margin-top: 8px;
+}
+
+.done-block .completed-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .completed-item {
