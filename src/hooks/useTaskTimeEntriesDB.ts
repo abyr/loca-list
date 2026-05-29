@@ -31,11 +31,13 @@ export const useTaskTimeEntriesDB = () => {
   const pauseTask = useCallback(async (taskId: number) => {
     try {
       const entries = await taskTimeEntryDAO.getAllTimeEntries();
-      const ongoingEntry = entries.find(entry => entry.taskId === taskId && !entry.stopped);
+      const ongoingEntries = entries.filter(entry => entry.taskId === taskId && !entry.stopped);
 
-      if (ongoingEntry) {
-        ongoingEntry.stopped = Date.now();
-        await taskTimeEntryDAO.updateTimeEntry(ongoingEntry);
+      if (ongoingEntries.length > 0) {
+        const stoppedAt = Date.now();
+        await Promise.all(
+          ongoingEntries.map(entry => taskTimeEntryDAO.updateTimeEntry({ ...entry, stopped: stoppedAt }))
+        );
       }
       await loadTimeEntries();
     } catch (e) {

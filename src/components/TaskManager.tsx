@@ -24,7 +24,7 @@ const TaskManager: React.FC = () => {
     deleteTask,
   } = useTaskDB();
 
-  const { timeEntries, loadTimeEntries, deleteTimeEntry } = useTaskTimeEntriesDB();
+  const { timeEntries, loadTimeEntries, deleteTimeEntry, pauseTask } = useTaskTimeEntriesDB();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -134,6 +134,10 @@ const TaskManager: React.FC = () => {
   } = useTaskForm(selectedTask, async ({ title, description, completed }) => {
     if (editingTaskId === null) return;
     const original = selectedTask ?? tasks.find(t => t.id === editingTaskId);
+    const shouldStopTimeEntries = !original?.completed && !!completed && !!editingTaskId;
+    if (shouldStopTimeEntries) {
+      await pauseTask(editingTaskId);
+    }
     await updateTask({
       id: editingTaskId,
       title,
@@ -159,6 +163,9 @@ const TaskManager: React.FC = () => {
 
   const toggleCompleted = async (task: Task) => {
     setSelectedTask(null);
+    if (!task.completed && task.id) {
+      await pauseTask(task.id);
+    }
     await updateTask({ ...task, completed: !task.completed, updatedDate: Date.now() });
   };
 
@@ -189,6 +196,9 @@ const TaskManager: React.FC = () => {
     if (!selectedTask) return;
     const confirmed = window.confirm('Are you sure you want to delete this task? This action cannot be undone.');
     if (!confirmed) return;
+    if (selectedTask.id) {
+      await pauseTask(selectedTask.id);
+    }
 
     for (const timeEntry of timeEntries.filter(entry => entry.taskId === selectedTask.id)) {
       await deleteTimeEntry(timeEntry.id as number);
@@ -204,6 +214,7 @@ const TaskManager: React.FC = () => {
 
     for (const task of completedTasks) {
       if (task.id) {
+        await pauseTask(task.id);
         for (const timeEntry of timeEntries.filter(entry => entry.taskId === task.id)) {
           await deleteTimeEntry(timeEntry.id as number);
         }
