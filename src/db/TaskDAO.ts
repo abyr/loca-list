@@ -19,6 +19,18 @@ export class TaskDAO {
   }
 
   async updateTask(task: Task): Promise<void> {
+    // Business invariant: completed tasks must not have active time entries.
+    if (task.completed && task.id !== undefined) {
+      const timeEntries = await this.db.getAllTimeEntries();
+      const hasOngoingEntry = timeEntries.some(
+        (entry) => entry.taskId === task.id && !entry.stopped
+      );
+
+      if (hasOngoingEntry) {
+        throw new Error('Cannot complete task with ongoing time entry. Stop the timer first.');
+      }
+    }
+
     return this.db.updateTask(task);
   }
 

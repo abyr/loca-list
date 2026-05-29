@@ -237,6 +237,9 @@ const TaskManager: React.FC = () => {
   const starredTasks = filteredTasks.filter(t => t.starred && !t.deleted);
 
   const startedTasks = filteredTasks.filter(task => {
+    if (task.completed || task.deleted) {
+      return false;
+    }
     return timeEntries.some(entry => entry.taskId === task.id && !entry.stopped);
   });
 

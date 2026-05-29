@@ -29,6 +29,12 @@ describe('TaskDB (with full Task model)', () => {
     // clear existing tasks to ensure test isolation
     const all = await db.getAllTasks();
     await Promise.all(all.map(t => (t.id ? db.deleteTask(t.id) : Promise.resolve())));
+
+    // clear existing time entries in the same DB instance used by TaskDAO
+    const allEntries = await (db as any).db.getAllTimeEntries();
+    await Promise.all(allEntries.map((entry: { id?: number }) => (
+      entry.id ? (db as any).db.deleteTimeEntry(entry.id) : Promise.resolve()
+    )));
   });
 
   test('adds a task and returns its generated id', async () => {
@@ -59,6 +65,24 @@ describe('TaskDB (with full Task model)', () => {
     expect(after.completed).toBe(true);
     // `updatedDate` should be newer than the original `createdDate`
     expect(after.updatedDate).toBeGreaterThan(stored.createdDate);
+  });
+
+  test('prevents completing a task when it has an ongoing time entry', async () => {
+    const id = await db.createTask(makeTask('Active timer task'));
+    await (db as any).db.addTimeEntry({
+      taskId: id,
+      started: Date.now(),
+    });
+
+    const [stored] = await db.getAllTasks();
+    const completedTask: Task = { ...stored, completed: true };
+
+    await expect(db.updateTask(completedTask)).rejects.toThrow(
+      'Cannot complete task with ongoing time entry. Stop the timer first.'
+    );
+
+    const [after] = await db.getAllTasks();
+    expect(after.completed).toBe(false);
   });
 
   test('deletes a task and removes it from the store', async () => {

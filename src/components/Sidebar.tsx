@@ -88,7 +88,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const getStartedTasksCount = () => {
-    const taskIds = new Set(tasks.map(t => t.id));
+    const taskIds = new Set(
+      tasks
+        .filter(task => !task.deleted && !task.completed)
+        .map(task => task.id)
+    );
     const taskIdsWithOngoingEntries = new Set(
       timeEntries.filter(entry => !entry.stopped && taskIds.has(entry.taskId)).map(entry => entry.taskId)
     );
